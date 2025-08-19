@@ -1,0 +1,124 @@
+
+
+services:
+  # Production PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: recipix_postgres_prod
+    environment:
+      POSTGRES_DB: recipix_prod
+      POSTGRES_USER: ${POSTGRES_USER:-recipix_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recipix_password}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - recipix_network_prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-recipix_user} -d recipix_prod"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Production Redis
+  redis:
+    image: redis:7-alpine
+    container_name: recipix_redis_prod
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data_prod:/data
+    networks:
+      - recipix_network_prod
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Production Backend API
+  api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: recipix_api_prod
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-recipix_user}:${POSTGRES_PASSWORD:-recipix_password}@postgres:5432/recipix_prod
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      UPLOAD_PATH: ./uploads
+      CORS_ORIGIN: ${FRONTEND_URL:-http://localhost:19006}
+      LOG_LEVEL: info
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - recipix_network_prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Production Frontend (Static Build)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: recipix_frontend_prod
+    environment:
+      NODE_ENV: production
+      EXPO_PUBLIC_API_URL: ${API_URL:-http://localhost:4001}
+      EXPO_PUBLIC_GRAPHQL_URL: ${GRAPHQL_URL:-http://localhost:4001/graphql}
+    ports:
+      - "19006:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - recipix_network_prod
+    restart: unless-stopped
+
+  # Production Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: recipix_nginx_prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - recipix_network_prod
+    restart: unless-stopped
+
+volumes:
+  postgres_data_prod:
+    driver: local
+  redis_data_prod:
+    driver: local
+
+networks:
+  recipix_network_prod:
+    driver: bridge

@@ -1,0 +1,134 @@
+
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: recipix_postgres
+    environment:
+      POSTGRES_DB: recipix
+      POSTGRES_USER: recipix_user
+      POSTGRES_PASSWORD: recipix_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - recipix_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recipix_user -d recipix"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: recipix_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - recipix_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend API
+  api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: recipix_api
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: postgresql://recipix_user:recipix_password@postgres:5432/recipix
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_EXPIRES_IN: 7d
+      UPLOAD_PATH: ./uploads
+      CORS_ORIGIN: "*"
+    ports:
+      - "4001:4000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/src:/app/src
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - recipix_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend (Expo Web)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: recipix_frontend
+    environment:
+      NODE_ENV: development
+      EXPO_PUBLIC_API_URL: http://0.0.0.0:4001
+      EXPO_PUBLIC_GRAPHQL_URL: http://0.0.0.0:4001/graphql
+    ports:
+      - "19006:19006"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.expo
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - recipix_network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # Nginx Reverse Proxy (Optional - for production-like setup)
+  nginx:
+    image: nginx:alpine
+    container_name: recipix_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - recipix_network
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  recipix_network:
+    driver: bridge
