@@ -46,10 +46,14 @@ export const recipeSchema = Yup.object().shape({
   instructions: Yup.string()
     .min(1, 'At least one instruction is required')
     .required('Instructions are required'),
-  cookingTime: Yup.number()
+  cookTime: Yup.number()
     .positive('Cooking time must be positive')
     .integer('Cooking time must be a whole number')
     .required('Cooking time is required'),
+  prepTime: Yup.number()
+    .positive('Prep time must be positive')
+    .integer('Prep time must be a whole number')
+    .optional(),
   servings: Yup.number()
     .positive('Servings must be positive')
     .integer('Servings must be a whole number')

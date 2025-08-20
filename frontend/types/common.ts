@@ -42,7 +42,11 @@ export interface RecipeFilters {
   search?: string;
   cuisine?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
-  cookingTime?: {
+  cookTime?: {
+    min?: number;
+    max?: number;
+  };
+  prepTime?: {
     min?: number;
     max?: number;
   };
@@ -50,7 +54,7 @@ export interface RecipeFilters {
 }
 
 // Sort Types
-export type SortOption = 'newest' | 'oldest' | 'title' | 'cookingTime' | 'popularity';
+export type SortOption = 'newest' | 'oldest' | 'title' | 'cookTime' | 'prepTime' | 'popularity';
 
 export interface SortConfig {
   field: SortOption;
@@ -135,10 +139,16 @@ export const STORAGE_KEYS = {
 
 // Constants
 export const RECIPE_DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
-export const COOKING_TIME_RANGES = [
+export const COOK_TIME_RANGES = [
   { label: 'Quick (< 30 min)', value: { min: 0, max: 30 } },
   { label: 'Medium (30-60 min)', value: { min: 30, max: 60 } },
   { label: 'Long (> 60 min)', value: { min: 60, max: 999 } },
+] as const;
+
+export const PREP_TIME_RANGES = [
+  { label: 'Quick (< 15 min)', value: { min: 0, max: 15 } },
+  { label: 'Medium (15-30 min)', value: { min: 15, max: 30 } },
+  { label: 'Long (> 30 min)', value: { min: 30, max: 999 } },
 ] as const;
 
 export const CUISINE_TYPES = [

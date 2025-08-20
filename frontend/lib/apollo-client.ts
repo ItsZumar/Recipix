@@ -21,7 +21,7 @@ const getBackendUrl = () => {
     const { Platform } = require("react-native");
     let url: string;
     if (Platform.OS === "android") {
-      url = "http://192.168.1.7:4000/graphql"; // Android emulator
+      url = "http://192.168.1.5:4000/graphql"; // Android emulator
     } else if (Platform.OS === "ios") {
       url = "http://localhost:4000/graphql"; // iOS simulator
     } else {
@@ -44,9 +44,9 @@ const httpLink = createHttpLink({
 // Auth link to add token to requests
 const authLink = setContext(async (_, { headers }): Promise<{ headers: Record<string, string> }> => {
   // Get the authentication token from Zustand store
-  const { useAuthStore } = await import('@/stores/authStore');
+  const { useAuthStore } = await import("@/stores/authStore");
   const token = useAuthStore.getState().token;
-  
+
   return {
     headers: {
       ...headers,

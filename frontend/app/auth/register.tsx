@@ -1,20 +1,13 @@
-import React from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
-import { router } from 'expo-router';
-import { useAuthStore } from '@/stores/authStore';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { FormField } from '@/components/FormField';
-import { useFormik, useFormField, useFormSubmission } from '@/hooks/useFormik';
-import { registrationSchema } from '@/utils/validationSchemas';
+import React, { useState } from "react";
+import { View, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { router } from "expo-router";
+import { useAuthStore } from "@/stores/authStore";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { InputField } from "@/components/inputs";
+import { Button } from "@/components/Button";
+import { useFormik, useFormSubmission } from "@/hooks/useFormik";
+import { registrationSchema } from "@/utils/validationSchemas";
 
 interface RegisterFormValues {
   username: string;
@@ -25,13 +18,15 @@ interface RegisterFormValues {
 
 export default function RegisterScreen() {
   const register = useAuthStore((state) => state.register);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formState, formActions] = useFormik<RegisterFormValues>({
     initialValues: {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
     validationSchema: registrationSchema,
     onSubmit: async (values) => {
@@ -40,109 +35,102 @@ export default function RegisterScreen() {
         email: values.email,
         password: values.password,
       });
-      
+
       if (result.success) {
-        router.replace('/(tabs)');
+        router.replace("/(tabs)");
       } else {
-        throw new Error(result.error || 'Registration failed');
+        throw new Error(result.error || "Registration failed");
       }
     },
     onError: (error) => {
-      Alert.alert('Registration Failed', error.message || 'Please try again');
+      Alert.alert("Registration Failed", error.message || "Please try again");
     },
   });
 
   const { handleSubmit, isSubmitting, canSubmit } = useFormSubmission(formState, formActions);
 
   const handleLogin = () => {
-    router.push('/auth/login' as any);
+    router.push("/auth/login" as any);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <ThemedView style={styles.content}>
           <View style={styles.header}>
             <ThemedText type="title" style={styles.title}>
               Create Account
             </ThemedText>
-            <ThemedText style={styles.subtitle}>
-              Join Recipix and start sharing your recipes
-            </ThemedText>
+            <ThemedText style={styles.subtitle}>Join Recipix and start sharing your recipes</ThemedText>
           </View>
 
           <View style={styles.form}>
-            <FormField
+            <InputField
               label="Username"
               value={formState.values.username}
-              onChangeText={(text) => formActions.setFieldValue('username', text)}
-              onBlur={() => formActions.setFieldTouched('username')}
-              error={formState.errors.username}
-              touched={formState.touched.username}
+              onChangeText={(text) => formActions.setFieldValue("username", text)}
+              error={formState.touched.username ? formState.errors.username : undefined}
               placeholder="Choose a username"
               autoCapitalize="none"
               autoCorrect={false}
               required
+              leftIcon="person-outline"
             />
 
-            <FormField
+            <InputField
               label="Email"
               value={formState.values.email}
-              onChangeText={(text) => formActions.setFieldValue('email', text)}
-              onBlur={() => formActions.setFieldTouched('email')}
-              error={formState.errors.email}
-              touched={formState.touched.email}
+              onChangeText={(text) => formActions.setFieldValue("email", text)}
+              error={formState.touched.email ? formState.errors.email : undefined}
               placeholder="Enter your email"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               required
+              leftIcon="mail-outline"
             />
 
-            <FormField
+            <InputField
               label="Password"
               value={formState.values.password}
-              onChangeText={(text) => formActions.setFieldValue('password', text)}
-              onBlur={() => formActions.setFieldTouched('password')}
-              error={formState.errors.password}
-              touched={formState.touched.password}
+              onChangeText={(text) => formActions.setFieldValue("password", text)}
+              error={formState.touched.password ? formState.errors.password : undefined}
               placeholder="Create a password"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               autoCapitalize="none"
               required
+              leftIcon="lock-closed-outline"
+              rightIcon={showPassword ? "eye-off-outline" : "eye-outline"}
+              onRightIconPress={() => setShowPassword(!showPassword)}
             />
 
-            <FormField
+            <InputField
               label="Confirm Password"
               value={formState.values.confirmPassword}
-              onChangeText={(text) => formActions.setFieldValue('confirmPassword', text)}
-              onBlur={() => formActions.setFieldTouched('confirmPassword')}
-              error={formState.errors.confirmPassword}
-              touched={formState.touched.confirmPassword}
+              onChangeText={(text) => formActions.setFieldValue("confirmPassword", text)}
+              error={formState.touched.confirmPassword ? formState.errors.confirmPassword : undefined}
               placeholder="Confirm your password"
-              secureTextEntry
+              secureTextEntry={!showConfirmPassword}
               autoCapitalize="none"
               required
+              leftIcon="lock-closed-outline"
+              rightIcon={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+              onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
             />
 
-            <TouchableOpacity
-              style={[styles.button, (!canSubmit || isSubmitting) && styles.buttonDisabled]}
+            <Button
+              variant="primary"
+              size="large"
+              loading={isSubmitting}
+              disabled={!canSubmit}
               onPress={handleSubmit}
-              disabled={!canSubmit || isSubmitting}
             >
-              <ThemedText style={styles.buttonText}>
-                {isSubmitting ? 'Creating Account...' : 'Create Account'}
-              </ThemedText>
-            </TouchableOpacity>
+              {isSubmitting ? "Creating Account..." : "Create Account"}
+            </Button>
           </View>
 
           <View style={styles.footer}>
-            <ThemedText style={styles.footerText}>
-              Already have an account?{' '}
-            </ThemedText>
+            <ThemedText style={styles.footerText}>Already have an account? </ThemedText>
             <TouchableOpacity onPress={handleLogin}>
               <ThemedText style={styles.linkText}>Sign In</ThemedText>
             </TouchableOpacity>
@@ -159,56 +147,42 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   content: {
     padding: 24,
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 48,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     opacity: 0.7,
-    textAlign: 'center',
+    textAlign: "center",
   },
   form: {
     marginBottom: 32,
   },
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   footerText: {
     fontSize: 16,
   },
   linkText: {
     fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600',
+    color: "#007AFF",
+    fontWeight: "600",
   },
 });

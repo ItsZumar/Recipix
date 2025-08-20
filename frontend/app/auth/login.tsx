@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -12,7 +12,8 @@ import { router } from 'expo-router';
 import { useAuthStore } from '@/stores/authStore';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { FormField } from '@/components/FormField';
+import { InputField } from '@/components/inputs';
+import { Button } from '@/components/Button';
 import { useFormik, useFormSubmission } from '@/hooks/useFormik';
 import { loginSchema } from '@/utils/validationSchemas';
 
@@ -23,6 +24,7 @@ interface LoginFormValues {
 
 export default function LoginScreen() {
   const login = useAuthStore((state) => state.login);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formState, formActions] = useFormik<LoginFormValues>({
     initialValues: {
@@ -66,42 +68,42 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.form}>
-            <FormField
+            <InputField
               label="Email"
               value={formState.values.email}
               onChangeText={(text) => formActions.setFieldValue('email', text)}
-              onBlur={() => formActions.setFieldTouched('email')}
-              error={formState.errors.email}
-              touched={formState.touched.email}
+              error={formState.touched.email ? formState.errors.email : undefined}
               placeholder="Enter your email"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               required
+              leftIcon="mail-outline"
             />
 
-            <FormField
+            <InputField
               label="Password"
               value={formState.values.password}
               onChangeText={(text) => formActions.setFieldValue('password', text)}
-              onBlur={() => formActions.setFieldTouched('password')}
-              error={formState.errors.password}
-              touched={formState.touched.password}
+              error={formState.touched.password ? formState.errors.password : undefined}
               placeholder="Enter your password"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               autoCapitalize="none"
               required
+              leftIcon="lock-closed-outline"
+              rightIcon={showPassword ? "eye-off-outline" : "eye-outline"}
+              onRightIconPress={() => setShowPassword(!showPassword)}
             />
 
-            <TouchableOpacity
-              style={[styles.button, (!canSubmit || isSubmitting) && styles.buttonDisabled]}
+            <Button
+              variant="primary"
+              size="large"
+              loading={isSubmitting}
+              disabled={!canSubmit}
               onPress={handleSubmit}
-              disabled={!canSubmit || isSubmitting}
             >
-              <ThemedText style={styles.buttonText}>
-                {isSubmitting ? 'Signing In...' : 'Sign In'}
-              </ThemedText>
-            </TouchableOpacity>
+              {isSubmitting ? 'Signing In...' : 'Sign In'}
+            </Button>
           </View>
 
           <View style={styles.footer}>
@@ -148,21 +150,7 @@ const styles = StyleSheet.create({
   form: {
     marginBottom: 32,
   },
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
