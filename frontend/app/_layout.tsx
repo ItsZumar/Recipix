@@ -46,9 +46,16 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="auth" />
+        <Stack.Screen name="recipe/[id]" />
+        <Stack.Screen name="recipes" />
+        <Stack.Screen name="create-recipe" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

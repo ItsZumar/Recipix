@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
-import { FormField } from './FormField';
-import { useFormik, useFormSubmission } from '@/hooks/useFormik';
-import { recipeSchema } from '@/utils/validationSchemas';
+import React from "react";
+import { TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
+import { FormField } from "./FormField";
+import { useFormik, useFormSubmission } from "@/hooks/useFormik";
+import { recipeSchema } from "@/utils/validationSchemas";
 
 interface RecipeFormValues {
   title: string;
@@ -22,20 +22,16 @@ interface RecipeFormProps {
   submitButtonText?: string;
 }
 
-export const RecipeForm: React.FC<RecipeFormProps> = ({
-  onSubmit,
-  initialValues = {},
-  submitButtonText = 'Create Recipe',
-}) => {
+export const RecipeForm: React.FC<RecipeFormProps> = ({ onSubmit, initialValues = {}, submitButtonText = "Create Recipe" }) => {
   const [formState, formActions] = useFormik<RecipeFormValues>({
     initialValues: {
-      title: '',
-      description: '',
-      ingredients: '',
-      instructions: '',
-      cookingTime: '',
-      servings: '',
-      cuisine: '',
+      title: "",
+      description: "",
+      ingredients: "",
+      instructions: "",
+      cookingTime: "",
+      servings: "",
+      cuisine: "",
       ...initialValues,
     },
     validationSchema: recipeSchema,
@@ -52,8 +48,8 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
         <FormField
           label="Recipe Title"
           value={formState.values.title}
-          onChangeText={(text) => formActions.setFieldValue('title', text)}
-          onBlur={() => formActions.setFieldTouched('title')}
+          onChangeText={(text) => formActions.setFieldValue("title", text)}
+          onBlur={() => formActions.setFieldTouched("title")}
           error={formState.errors.title}
           touched={formState.touched.title}
           placeholder="Enter recipe title"
@@ -63,8 +59,8 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
         <FormField
           label="Description"
           value={formState.values.description}
-          onChangeText={(text) => formActions.setFieldValue('description', text)}
-          onBlur={() => formActions.setFieldTouched('description')}
+          onChangeText={(text) => formActions.setFieldValue("description", text)}
+          onBlur={() => formActions.setFieldTouched("description")}
           error={formState.errors.description}
           touched={formState.touched.description}
           placeholder="Describe your recipe"
@@ -76,8 +72,8 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
         <FormField
           label="Ingredients"
           value={formState.values.ingredients}
-          onChangeText={(text) => formActions.setFieldValue('ingredients', text)}
-          onBlur={() => formActions.setFieldTouched('ingredients')}
+          onChangeText={(text) => formActions.setFieldValue("ingredients", text)}
+          onBlur={() => formActions.setFieldTouched("ingredients")}
           error={formState.errors.ingredients}
           touched={formState.touched.ingredients}
           placeholder="Enter ingredients (one per line)"
@@ -89,8 +85,8 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
         <FormField
           label="Instructions"
           value={formState.values.instructions}
-          onChangeText={(text) => formActions.setFieldValue('instructions', text)}
-          onBlur={() => formActions.setFieldTouched('instructions')}
+          onChangeText={(text) => formActions.setFieldValue("instructions", text)}
+          onBlur={() => formActions.setFieldTouched("instructions")}
           error={formState.errors.instructions}
           touched={formState.touched.instructions}
           placeholder="Enter cooking instructions (one per line)"
@@ -102,8 +98,8 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
         <FormField
           label="Cooking Time (minutes)"
           value={formState.values.cookingTime}
-          onChangeText={(text) => formActions.setFieldValue('cookingTime', text)}
-          onBlur={() => formActions.setFieldTouched('cookingTime')}
+          onChangeText={(text) => formActions.setFieldValue("cookingTime", text)}
+          onBlur={() => formActions.setFieldTouched("cookingTime")}
           error={formState.errors.cookingTime}
           touched={formState.touched.cookingTime}
           placeholder="30"
@@ -114,8 +110,8 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
         <FormField
           label="Servings"
           value={formState.values.servings}
-          onChangeText={(text) => formActions.setFieldValue('servings', text)}
-          onBlur={() => formActions.setFieldTouched('servings')}
+          onChangeText={(text) => formActions.setFieldValue("servings", text)}
+          onBlur={() => formActions.setFieldTouched("servings")}
           error={formState.errors.servings}
           touched={formState.touched.servings}
           placeholder="4"
@@ -126,8 +122,8 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
         <FormField
           label="Cuisine"
           value={formState.values.cuisine}
-          onChangeText={(text) => formActions.setFieldValue('cuisine', text)}
-          onBlur={() => formActions.setFieldTouched('cuisine')}
+          onChangeText={(text) => formActions.setFieldValue("cuisine", text)}
+          onBlur={() => formActions.setFieldTouched("cuisine")}
           error={formState.errors.cuisine}
           touched={formState.touched.cuisine}
           placeholder="e.g., Italian, Mexican, Indian"
@@ -139,9 +135,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({
           onPress={handleSubmit}
           disabled={!canSubmit || isSubmitting}
         >
-          <ThemedText style={styles.buttonText}>
-            {isSubmitting ? 'Creating...' : submitButtonText}
-          </ThemedText>
+          <ThemedText style={styles.buttonText}>{isSubmitting ? "Creating..." : submitButtonText}</ThemedText>
         </TouchableOpacity>
       </ThemedView>
     </ScrollView>
@@ -156,18 +150,18 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     borderRadius: 12,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 16,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

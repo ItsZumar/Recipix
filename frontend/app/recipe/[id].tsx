@@ -1,0 +1,343 @@
+import React from 'react';
+import { StyleSheet, ScrollView, TouchableOpacity, View, Image } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { Header } from '@/components/Header';
+import { useRecipe } from '@/hooks/useRecipes';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { wp, hp } from '@/utils/responsive';
+
+export default function RecipeDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { data, loading, error } = useRecipe(id || '');
+  
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const iconColor = useThemeColor({}, 'icon');
+
+  const recipe = data?.recipe;
+
+  if (loading) {
+    return (
+      <ThemedView style={[styles.container, { backgroundColor }]}>
+        <ThemedText style={[styles.loadingText, { color: textColor }]}>
+          Loading recipe...
+        </ThemedText>
+      </ThemedView>
+    );
+  }
+
+  if (error || !recipe) {
+    return (
+      <ThemedView style={[styles.container, { backgroundColor }]}>
+        <ThemedText style={[styles.errorText, { color: textColor }]}>
+          Recipe not found
+        </ThemedText>
+        <TouchableOpacity
+          style={[styles.backButton, { backgroundColor: iconColor }]}
+          onPress={() => router.back()}
+        >
+          <ThemedText style={styles.backButtonText}>Go Back</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
+
+  return (
+    <ThemedView style={[styles.container, { backgroundColor }]}>
+      {/* Header */}
+      <Header
+        title={recipe.title}
+        leftAccessory={{
+          icon: "arrow-back",
+          onPress: () => router.back(),
+        }}
+        rightAccessory={{
+          icon: "heart-outline", // TODO: Update based on favorite status
+          onPress: () => {
+            // TODO: Toggle favorite
+          },
+        }}
+      />
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Recipe Image */}
+        <View style={styles.imageContainer}>
+          {recipe.image ? (
+            <Image source={{ uri: recipe.image }} style={styles.image} />
+          ) : (
+                      <View style={[styles.placeholderImage, { backgroundColor: backgroundColor === '#fff' ? '#f0f0f0' : '#404040' }]}>
+            <Ionicons name="restaurant" size={wp(16)} color={iconColor} />
+          </View>
+          )}
+        </View>
+
+        {/* Recipe Info */}
+        <View style={styles.content}>
+          <ThemedText type="title" style={[styles.title, { color: textColor }]}>
+            {recipe.title}
+          </ThemedText>
+          
+          <ThemedText style={[styles.description, { color: textColor }]}>
+            {recipe.description}
+          </ThemedText>
+
+          {/* Recipe Metadata */}
+          <View style={styles.metadata}>
+            <View style={styles.metadataItem}>
+              <Ionicons name="time-outline" size={wp(5)} color={iconColor} />
+              <ThemedText style={[styles.metadataText, { color: textColor }]}>
+                {recipe.cookTime} minutes
+              </ThemedText>
+            </View>
+            
+            <View style={styles.metadataItem}>
+              <Ionicons name="people-outline" size={wp(5)} color={iconColor} />
+              <ThemedText style={[styles.metadataText, { color: textColor }]}>
+                {recipe.servings} servings
+              </ThemedText>
+            </View>
+            
+            <View style={styles.metadataItem}>
+              <Ionicons name="restaurant-outline" size={wp(5)} color={iconColor} />
+              <ThemedText style={[styles.metadataText, { color: textColor }]}>
+                {recipe.difficulty}
+              </ThemedText>
+            </View>
+          </View>
+
+          {/* Cuisine */}
+          {recipe.cuisine && (
+            <View style={styles.cuisineContainer}>
+              <ThemedText style={[styles.cuisineLabel, { color: iconColor }]}>
+                Cuisine:
+              </ThemedText>
+              <ThemedText style={[styles.cuisineText, { color: textColor }]}>
+                {recipe.cuisine}
+              </ThemedText>
+            </View>
+          )}
+
+          {/* Ingredients */}
+          <View style={styles.section}>
+            <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
+              Ingredients
+            </ThemedText>
+            {recipe.ingredients.map((ingredient, index) => (
+              <View key={index} style={styles.ingredientItem}>
+                <View style={[styles.bullet, { backgroundColor: iconColor }]} />
+                <ThemedText style={[styles.ingredientText, { color: textColor }]}>
+                  {ingredient.amount} {ingredient.unit} {ingredient.name}
+                  {ingredient.notes && ` (${ingredient.notes})`}
+                </ThemedText>
+              </View>
+            ))}
+          </View>
+
+          {/* Instructions */}
+          <View style={styles.section}>
+            <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
+              Instructions
+            </ThemedText>
+            {recipe.instructions.map((instruction, index) => (
+              <View key={index} style={styles.instructionItem}>
+                <View style={[styles.stepNumber, { backgroundColor: iconColor }]}>
+                  <ThemedText style={styles.stepNumberText}>{index + 1}</ThemedText>
+                </View>
+                <ThemedText style={[styles.instructionText, { color: textColor }]}>
+                  {instruction}
+                </ThemedText>
+              </View>
+            ))}
+          </View>
+
+          {/* Tags */}
+          {recipe.tags && recipe.tags.length > 0 && (
+            <View style={styles.section}>
+              <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
+                Tags
+              </ThemedText>
+              <View style={styles.tagsContainer}>
+                {recipe.tags.map((tag, index) => (
+                  <View key={index} style={[styles.tag, { backgroundColor: backgroundColor === '#fff' ? '#f0f0f0' : '#404040' }]}>
+                    <ThemedText style={[styles.tagText, { color: textColor }]}>
+                      {tag}
+                    </ThemedText>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: wp(4),
+    paddingVertical: hp(1.5),
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: wp(6),
+  },
+  backButton: {
+    padding: wp(2),
+  },
+  scrollView: {
+    flex: 1,
+  },
+  imageContainer: {
+    height: hp(31),
+    width: '100%',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  placeholderImage: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  content: {
+    padding: wp(4),
+  },
+  title: {
+    marginBottom: hp(1),
+  },
+  description: {
+    fontSize: wp(4),
+    lineHeight: hp(3),
+    marginBottom: hp(2),
+    opacity: 0.8,
+  },
+  metadata: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: hp(3),
+    paddingVertical: hp(2),
+    backgroundColor: '#f8f9fa',
+    borderRadius: wp(3),
+  },
+  metadataItem: {
+    alignItems: 'center',
+    gap: hp(0.5),
+  },
+  metadataText: {
+    fontSize: wp(3.5),
+    fontWeight: '500',
+  },
+  cuisineContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: hp(3),
+    gap: wp(2),
+  },
+  cuisineLabel: {
+    fontSize: wp(3.5),
+    fontWeight: '600',
+  },
+  cuisineText: {
+    fontSize: wp(3.5),
+    fontStyle: 'italic',
+  },
+  section: {
+    marginBottom: hp(3),
+  },
+  sectionTitle: {
+    marginBottom: hp(1.5),
+  },
+  ingredientItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: hp(1),
+    gap: wp(3),
+  },
+  bullet: {
+    width: wp(1.5),
+    height: wp(1.5),
+    borderRadius: wp(0.75),
+    marginTop: hp(1),
+  },
+  ingredientText: {
+    flex: 1,
+    fontSize: wp(4),
+    lineHeight: hp(3),
+  },
+  instructionItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: hp(2),
+    gap: wp(3),
+  },
+  stepNumber: {
+    width: wp(6),
+    height: wp(6),
+    borderRadius: wp(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: hp(0.25),
+  },
+  stepNumberText: {
+    color: '#fff',
+    fontSize: wp(3),
+    fontWeight: '600',
+  },
+  instructionText: {
+    flex: 1,
+    fontSize: wp(4),
+    lineHeight: hp(3),
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: wp(2),
+  },
+  tag: {
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(0.75),
+    borderRadius: wp(4),
+  },
+  tagText: {
+    fontSize: wp(3),
+    fontWeight: '500',
+  },
+  loadingText: {
+    fontSize: wp(4),
+    textAlign: 'center',
+    marginTop: hp(6),
+  },
+  errorText: {
+    fontSize: wp(4),
+    textAlign: 'center',
+    marginTop: hp(6),
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: wp(4),
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: hp(2),
+    padding: hp(1.5),
+    borderRadius: wp(2),
+  },
+});

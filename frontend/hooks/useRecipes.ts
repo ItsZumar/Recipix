@@ -14,23 +14,121 @@ import {
 
 // GraphQL Queries
 const GET_RECIPES = gql`
-  query GetRecipes($page: Int, $limit: Int, $search: String, $cuisine: String, $difficulty: String) {
-    recipes(page: $page, limit: $limit, search: $search, cuisine: $cuisine, difficulty: $difficulty) {
+  query GetRecipes($filter: RecipeFilterInput, $sort: RecipeSortInput, $first: Int, $after: String) {
+    recipes(filter: $filter, sort: $sort, first: $first, after: $after) {
+      edges {
+        node {
+          id
+          title
+          description
+          ingredients {
+            name
+            amount
+            unit
+            notes
+          }
+          instructions
+          prepTime
+          cookTime
+          servings
+          difficulty
+          cuisine
+          tags
+          image
+          rating
+          ratingCount
+          viewCount
+          favoriteCount
+          author {
+            id
+            username
+            firstName
+            lastName
+            avatar
+          }
+          createdAt
+          updatedAt
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
+    }
+  }
+`;
+
+const SEARCH_RECIPES = gql`
+  query SearchRecipes($query: String!, $limit: Int, $offset: Int) {
+    searchRecipes(query: $query, limit: $limit, offset: $offset) {
       id
       title
       description
-      ingredients
+      ingredients {
+        name
+        amount
+        unit
+        notes
+      }
       instructions
-      cookingTime
+      prepTime
+      cookTime
       servings
       difficulty
       cuisine
       tags
-      imageUrl
-      authorId
+      image
+      rating
+      ratingCount
+      viewCount
+      favoriteCount
       author {
         id
         username
+        firstName
+        lastName
+        avatar
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+const GET_RECENT_RECIPES = gql`
+  query GetRecentRecipes($limit: Int) {
+    recentRecipes(limit: $limit) {
+      id
+      title
+      description
+      ingredients {
+        name
+        amount
+        unit
+        notes
+      }
+      instructions
+      prepTime
+      cookTime
+      servings
+      difficulty
+      cuisine
+      tags
+      image
+      rating
+      ratingCount
+      viewCount
+      favoriteCount
+      author {
+        id
+        username
+        firstName
+        lastName
+        avatar
       }
       createdAt
       updatedAt
@@ -44,18 +142,30 @@ const GET_RECIPE = gql`
       id
       title
       description
-      ingredients
+      ingredients {
+        name
+        amount
+        unit
+        notes
+      }
       instructions
-      cookingTime
+      prepTime
+      cookTime
       servings
       difficulty
       cuisine
       tags
-      imageUrl
-      authorId
+      image
+      rating
+      ratingCount
+      viewCount
+      favoriteCount
       author {
         id
         username
+        firstName
+        lastName
+        avatar
       }
       createdAt
       updatedAt
@@ -69,15 +179,20 @@ const GET_USER_RECIPES = gql`
       id
       title
       description
-      ingredients
+      ingredients {
+        name
+        amount
+        unit
+        notes
+      }
       instructions
-      cookingTime
+      prepTime
+      cookTime
       servings
       difficulty
       cuisine
       tags
-      imageUrl
-      authorId
+      image
       author {
         id
         username
@@ -95,15 +210,20 @@ const CREATE_RECIPE = gql`
       id
       title
       description
-      ingredients
+      ingredients {
+        name
+        amount
+        unit
+        notes
+      }
       instructions
-      cookingTime
+      prepTime
+      cookTime
       servings
       difficulty
       cuisine
       tags
-      imageUrl
-      authorId
+      image
       author {
         id
         username
@@ -120,15 +240,20 @@ const UPDATE_RECIPE = gql`
       id
       title
       description
-      ingredients
+      ingredients {
+        name
+        amount
+        unit
+        notes
+      }
       instructions
-      cookingTime
+      prepTime
+      cookTime
       servings
       difficulty
       cuisine
       tags
-      imageUrl
-      authorId
+      image
       author {
         id
         username
@@ -145,16 +270,32 @@ const DELETE_RECIPE = gql`
   }
 `;
 
-// Hook for getting all recipes
+// Hook for getting all recipes with filters
 export const useRecipes = (variables?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-  cuisine?: string;
-  difficulty?: string;
+  filter?: {
+    search?: string;
+    cuisine?: string;
+    difficulty?: 'easy' | 'medium' | 'hard';
+    minRating?: number;
+    maxPrepTime?: number;
+    maxCookTime?: number;
+    tags?: string[];
+    authorId?: string;
+  };
+  sort?: {
+    field: 'title' | 'rating' | 'createdAt' | 'updatedAt' | 'prepTime' | 'cookTime';
+    direction: 'ASC' | 'DESC';
+  };
+  first?: number;
+  after?: string;
 }) => {
-  return useQuery<GetRecipesResponse>(GET_RECIPES, {
-    variables,
+  return useQuery(GET_RECIPES, {
+    variables: {
+      filter: variables?.filter,
+      sort: variables?.sort || { field: 'createdAt', direction: 'DESC' },
+      first: variables?.first || 10,
+      after: variables?.after,
+    },
     fetchPolicy: 'cache-and-network',
   });
 };
@@ -179,7 +320,15 @@ export const useUserRecipes = (userId: string, variables?: PaginationInput) => {
 
 // Hook for lazy loading recipes (for search)
 export const useLazyRecipes = () => {
-  return useLazyQuery<GetRecipesResponse>(GET_RECIPES, {
+  return useLazyQuery(SEARCH_RECIPES, {
+    fetchPolicy: 'cache-and-network',
+  });
+};
+
+// Hook for getting recent recipes (simpler for home screen)
+export const useRecentRecipes = (limit?: number) => {
+  return useQuery(GET_RECENT_RECIPES, {
+    variables: { limit: limit || 10 },
     fetchPolicy: 'cache-and-network',
   });
 };
