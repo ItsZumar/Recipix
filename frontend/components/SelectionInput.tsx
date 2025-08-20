@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { useScreenColors } from './ScreenWrapper';
 import { wp, hp } from '@/utils/responsive';
+import { getFontStyle } from '@/hooks/useFonts';
 
 export interface SelectionOption {
   value: string;
@@ -113,8 +114,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: wp(3.5),
-    fontWeight: '500',
     marginBottom: hp(0.5),
+    ...getFontStyle('primary', 'medium'),
   },
   required: {
     color: '#FF3B30',
@@ -146,6 +147,6 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: wp(3.5),
-    fontWeight: '500',
+    ...getFontStyle('primary', 'medium'),
   },
 });

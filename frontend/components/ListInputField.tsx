@@ -5,6 +5,7 @@ import { ThemedText } from './ThemedText';
 import { InputField } from './InputField';
 import { useScreenColors } from './ScreenWrapper';
 import { wp, hp } from '@/utils/responsive';
+import { getFontStyle } from '@/hooks/useFonts';
 
 export interface ListInputFieldProps {
   title: string;
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: wp(4.5),
-    fontWeight: '600',
+    ...getFontStyle('primary', 'semibold'),
   },
   required: {
     color: '#FF3B30',
@@ -166,6 +167,6 @@ const styles = StyleSheet.create({
   stepNumberText: {
     color: '#fff',
     fontSize: wp(3.5),
-    fontWeight: '600',
+    ...getFontStyle('primary', 'semibold'),
   },
 });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View, ScrollView, Alert, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { pickImageFromGallery, takePhoto, getRecipeImageOptions } from '@/utils/imagePicker';
 
@@ -185,7 +185,14 @@ export default function CreateRecipeScreen() {
         title="Create Recipe"
         leftAccessory={{
           icon: "arrow-back",
-          onPress: () => router.back(),
+          onPress: () => {
+            // Check if we can go back, otherwise navigate to tabs
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.push('/(tabs)');
+            }
+          },
         }}
         rightAccessory={{
           text: "Save",

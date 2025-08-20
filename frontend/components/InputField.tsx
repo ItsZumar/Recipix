@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from './ThemedText';
 import { useScreenColors } from './ScreenWrapper';
 import { wp, hp } from '@/utils/responsive';
+import { getFontStyle } from '@/hooks/useFonts';
 
 export interface InputFieldProps extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   label?: string;
@@ -53,6 +54,7 @@ export const InputField: React.FC<InputFieldProps> = ({
         backgroundColor: backgroundColor === '#fff' ? '#FFF8F5' : '#2a2a2a',
         color: textColor,
         borderColor: hasError ? '#FF3B30' : 'transparent',
+        ...getFontStyle('primary', 'regular'),
       },
     ];
 
@@ -142,8 +144,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: wp(3.5),
-    fontWeight: '500',
     marginBottom: hp(0.5),
+    ...getFontStyle('primary', 'medium'),
   },
   required: {
     color: '#FF3B30',
@@ -189,5 +191,6 @@ const styles = StyleSheet.create({
     color: '#FF3B30',
     fontSize: wp(3),
     marginTop: hp(0.5),
+    ...getFontStyle('primary', 'regular'),
   },
 });

@@ -132,7 +132,7 @@ export default function RegisterScreen() {
           <View style={styles.footer}>
             <ThemedText style={styles.footerText}>Already have an account? </ThemedText>
             <TouchableOpacity onPress={handleLogin}>
-              <ThemedText style={styles.linkText}>Sign In</ThemedText>
+              <ThemedText type="link" style={styles.linkText}>Sign In</ThemedText>
             </TouchableOpacity>
           </View>
         </ThemedView>
@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
     marginBottom: 8,
   },
   subtitle: {
@@ -183,6 +182,5 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 16,
     color: "#007AFF",
-    fontWeight: "600",
   },
 });

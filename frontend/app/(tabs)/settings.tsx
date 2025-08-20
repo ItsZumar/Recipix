@@ -9,11 +9,13 @@ import { ThemedView } from '@/components/ThemedView';
 import { Header } from '@/components/Header';
 import { useUser, useAuthStore } from '@/stores/authStore';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const user = useUser();
   const logout = useAuthStore((state) => state.logout);
+  const { resetOnboarding } = useOnboarding();
   
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -58,6 +60,28 @@ export default function SettingsScreen() {
           style: "destructive", 
           onPress: () => {
             Alert.alert('Account Deletion', 'Account deletion feature coming soon!');
+          }
+        },
+      ]
+    );
+  };
+
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      "Reset Onboarding",
+      "This will show the onboarding screens again on next app launch.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Reset", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              await resetOnboarding();
+              Alert.alert('Success', 'Onboarding has been reset. Restart the app to see the onboarding screens.');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to reset onboarding. Please try again.');
+            }
           }
         },
       ]
@@ -152,6 +176,14 @@ export default function SettingsScreen() {
           subtitle: 'App version and information',
           type: 'button' as const,
           onPress: () => Alert.alert('About', 'Recipix v1.0.0\nYour personal recipe companion'),
+        },
+        {
+          id: 'reset-onboarding',
+          icon: 'refresh-outline' as const,
+          title: 'Reset Onboarding',
+          subtitle: 'Show onboarding screens again',
+          type: 'button' as const,
+          onPress: handleResetOnboarding,
         },
       ],
     },

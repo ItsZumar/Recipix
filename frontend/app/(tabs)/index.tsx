@@ -84,7 +84,7 @@ export default function HomeScreen() {
     [router]
   );
 
-  const renderCategoryItem = ({ item }: { item: typeof RECIPE_CATEGORIES[number] }) => (
+  const renderCategoryItem = ({ item }: { item: (typeof RECIPE_CATEGORIES)[number] }) => (
     <CategoryCard
       title={item.title}
       icon={item.icon}
@@ -135,12 +135,12 @@ export default function HomeScreen() {
 
       <ScrollView style={styles.scrollContent}>
         {/* Search Bar */}
-              <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        onSubmit={handleSearch}
-        placeholder={PLACEHOLDER_TEXTS.SEARCH_RECIPES}
-      />
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmit={handleSearch}
+          placeholder={PLACEHOLDER_TEXTS.SEARCH_RECIPES}
+        />
 
         {/* Categories Section */}
         <ThemedView style={styles.sectionContainer}>
@@ -157,9 +157,9 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </ThemedView>
-                  <FlatList
-          data={RECIPE_CATEGORIES}
-          renderItem={renderCategoryItem}
+          <FlatList
+            data={RECIPE_CATEGORIES}
+            renderItem={renderCategoryItem}
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -210,25 +210,6 @@ export default function HomeScreen() {
               </ThemedText>
             </ThemedView>
           )}
-        </ThemedView>
-
-        {/* Quick Actions */}
-        <ThemedView style={styles.quickActionsContainer}>
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: tintColor }]}
-            onPress={() => router.push("/create-recipe")}
-          >
-            <Ionicons name="add" size={wp(6)} color="#fff" />
-            <ThemedText style={styles.quickActionText}>Create Recipe</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: backgroundColor === "#fff" ? "#f0f0f0" : "#404040" }]}
-            onPress={() => router.push("/recipes")}
-          >
-            <Ionicons name="restaurant-outline" size={wp(6)} color={textColor} />
-            <ThemedText style={[styles.quickActionText, { color: textColor }]}>Browse Recipes</ThemedText>
-          </TouchableOpacity>
         </ThemedView>
       </ScrollView>
     </ScreenWrapper>
@@ -282,32 +263,5 @@ const styles = StyleSheet.create({
     marginTop: hp(0.5),
     textAlign: "center",
     opacity: 0.7,
-  },
-  quickActionsContainer: {
-    flexDirection: "row",
-    gap: wp(3),
-    paddingHorizontal: wp(4),
-    paddingBottom: hp(2.5),
-  },
-  quickActionButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: hp(2),
-    borderRadius: wp(3),
-    gap: wp(2),
-  },
-  quickActionText: {
-    color: "#fff",
-    fontSize: wp(3.5),
-    fontWeight: "600",
-  },
-  reactLogo: {
-    height: hp(22),
-    width: wp(72),
-    bottom: 0,
-    left: 0,
-    position: "absolute",
   },
 });
