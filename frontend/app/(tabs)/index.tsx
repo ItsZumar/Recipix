@@ -15,7 +15,7 @@ import { useUser } from "@/stores/authStore";
 
 import { useRecipes, useLazyRecipes } from "@/hooks/useRecipes";
 import { useUserFavorites, useToggleFavorite } from "@/hooks/useFavorites";
-import { RECIPE_CATEGORIES, APP_CONFIG, PLACEHOLDER_TEXTS } from "@/constants/appConstants";
+import { RECIPE_CATEGORIES, CUISINE_OPTIONS, APP_CONFIG, PLACEHOLDER_TEXTS } from "@/constants/appConstants";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -23,6 +23,19 @@ export default function HomeScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Create comprehensive categories list from all cuisine options
+  const allCategories = CUISINE_OPTIONS.map((cuisine) => ({
+    id: cuisine,
+    title: cuisine,
+    icon: "restaurant" as const, // Default icon for all cuisines
+  }));
+
+  type CategoryItem = {
+    id: string;
+    title: string;
+    icon: "restaurant";
+  };
 
   const { backgroundColor, textColor, tintColor } = useScreenColors();
 
@@ -84,7 +97,7 @@ export default function HomeScreen() {
     [router]
   );
 
-  const renderCategoryItem = ({ item }: { item: typeof RECIPE_CATEGORIES[number] }) => (
+  const renderCategoryItem = ({ item }: { item: CategoryItem }) => (
     <CategoryCard
       title={item.title}
       icon={item.icon}
@@ -135,12 +148,12 @@ export default function HomeScreen() {
 
       <ScrollView style={styles.scrollContent}>
         {/* Search Bar */}
-              <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        onSubmit={handleSearch}
-        placeholder={PLACEHOLDER_TEXTS.SEARCH_RECIPES}
-      />
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmit={handleSearch}
+          placeholder={PLACEHOLDER_TEXTS.SEARCH_RECIPES}
+        />
 
         {/* Categories Section */}
         <ThemedView style={styles.sectionContainer}>
@@ -157,9 +170,9 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </ThemedView>
-                  <FlatList
-          data={RECIPE_CATEGORIES}
-          renderItem={renderCategoryItem}
+          <FlatList
+            data={allCategories}
+            renderItem={renderCategoryItem}
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -210,25 +223,6 @@ export default function HomeScreen() {
               </ThemedText>
             </ThemedView>
           )}
-        </ThemedView>
-
-        {/* Quick Actions */}
-        <ThemedView style={styles.quickActionsContainer}>
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: tintColor }]}
-            onPress={() => router.push("/create-recipe")}
-          >
-            <Ionicons name="add" size={wp(6)} color="#fff" />
-            <ThemedText style={styles.quickActionText}>Create Recipe</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: backgroundColor === "#fff" ? "#f0f0f0" : "#404040" }]}
-            onPress={() => router.push("/recipes")}
-          >
-            <Ionicons name="restaurant-outline" size={wp(6)} color={textColor} />
-            <ThemedText style={[styles.quickActionText, { color: textColor }]}>Browse Recipes</ThemedText>
-          </TouchableOpacity>
         </ThemedView>
       </ScrollView>
     </ScreenWrapper>
@@ -282,32 +276,5 @@ const styles = StyleSheet.create({
     marginTop: hp(0.5),
     textAlign: "center",
     opacity: 0.7,
-  },
-  quickActionsContainer: {
-    flexDirection: "row",
-    gap: wp(3),
-    paddingHorizontal: wp(4),
-    paddingBottom: hp(2.5),
-  },
-  quickActionButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: hp(2),
-    borderRadius: wp(3),
-    gap: wp(2),
-  },
-  quickActionText: {
-    color: "#fff",
-    fontSize: wp(3.5),
-    fontWeight: "600",
-  },
-  reactLogo: {
-    height: hp(22),
-    width: wp(72),
-    bottom: 0,
-    left: 0,
-    position: "absolute",
   },
 });

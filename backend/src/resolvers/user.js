@@ -102,6 +102,33 @@ const userResolvers = {
       
       return user.favoriteRecipes || [];
     },
+
+    recipesCount: async (parent, args, context) => {
+      const count = await Recipe.count({
+        where: {
+          authorId: parent.id,
+          isPublic: true,
+          isPublished: true
+        }
+      });
+      
+      return count;
+    },
+
+    favoriteRecipesCount: async (parent, args, context) => {
+      const user = await User.findByPk(parent.id, {
+        include: [
+          {
+            model: Recipe,
+            as: 'favoriteRecipes',
+            where: { isPublic: true, isPublished: true },
+            required: false
+          }
+        ]
+      });
+      
+      return user.favoriteRecipes ? user.favoriteRecipes.length : 0;
+    },
   },
 };
 

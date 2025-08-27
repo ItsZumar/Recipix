@@ -111,7 +111,7 @@ export default function LoginScreen() {
               Don't have an account?{' '}
             </ThemedText>
             <TouchableOpacity onPress={handleRegister}>
-              <ThemedText style={styles.linkText}>Sign Up</ThemedText>
+              <ThemedText type="link" style={styles.linkText}>Sign Up</ThemedText>
             </TouchableOpacity>
           </View>
         </ThemedView>
@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
     marginBottom: 8,
   },
   subtitle: {
@@ -162,6 +161,5 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 16,
     color: '#007AFF',
-    fontWeight: '600',
   },
 });

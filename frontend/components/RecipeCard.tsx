@@ -5,6 +5,7 @@ import { ThemedText } from './ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Recipe } from '@/types/graphql';
 import { wp, hp } from '@/utils/responsive';
+import { useRouter } from 'expo-router';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -21,6 +22,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
   isFavorited = false, 
   showFavoriteButton = false 
 }) => {
+  const router = useRouter();
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const iconColor = useThemeColor({}, 'icon');
@@ -56,6 +58,8 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
   if (!recipe) {
     return null;
   }
+
+
 
   return (
     <TouchableOpacity
@@ -124,6 +128,8 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
             </ThemedText>
           </View>
         )}
+        
+
       </View>
     </TouchableOpacity>
   );
@@ -221,4 +227,5 @@ const styles = StyleSheet.create({
     fontSize: wp(3),
     fontStyle: 'italic',
   },
+
 });

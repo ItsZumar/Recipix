@@ -5,6 +5,7 @@ import { ThemedText } from './ThemedText';
 import { InputField } from './InputField';
 import { useScreenColors } from './ScreenWrapper';
 import { wp, hp } from '@/utils/responsive';
+import { getFontStyle } from '@/hooks/useFonts';
 
 export interface ListInputFieldProps {
   title: string;
@@ -76,7 +77,7 @@ export const ListInputField: React.FC<ListInputFieldProps> = ({
         )}
       </View>
       
-      <ScrollView style={styles.itemsContainer} showsVerticalScrollIndicator={false}>
+      <View style={styles.itemsContainer}>
         {items.map((item, index) => (
           <View key={index} style={styles.itemContainer}>
             {variant === 'numbered' && (
@@ -105,7 +106,7 @@ export const ListInputField: React.FC<ListInputFieldProps> = ({
             )}
           </View>
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: wp(4.5),
-    fontWeight: '600',
+    ...getFontStyle('primary', 'semibold'),
   },
   required: {
     color: '#FF3B30',
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   itemsContainer: {
-    maxHeight: hp(30),
+    // Removed maxHeight constraint to allow unlimited items
   },
   itemContainer: {
     flexDirection: 'row',
@@ -166,6 +167,6 @@ const styles = StyleSheet.create({
   stepNumberText: {
     color: '#fff',
     fontSize: wp(3.5),
-    fontWeight: '600',
+    ...getFontStyle('primary', 'semibold'),
   },
 });
