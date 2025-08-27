@@ -56,8 +56,17 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
 
+    console.log('Layout routing check:', {
+      isOnboardingCompleted,
+      inAuthGroup,
+      inOnboarding,
+      user: !!user,
+      segments: segments[0]
+    });
+
     // Check if user needs to see onboarding
     if (isOnboardingCompleted === false && !inOnboarding) {
+      console.log('Redirecting to onboarding...');
       router.replace('/onboarding');
       return;
     }
@@ -65,9 +74,11 @@ function RootLayoutNav() {
     // Handle authentication routing (only if onboarding is completed)
     if (isOnboardingCompleted === true) {
       if (!user && !inAuthGroup && !inOnboarding) {
+        console.log('Redirecting to login...');
         // Redirect to login if not authenticated
         router.replace('/auth/login');
       } else if (user && inAuthGroup) {
+        console.log('Redirecting to home...');
         // Redirect to home if authenticated and trying to access auth screens
         router.replace('/(tabs)');
       }
@@ -90,6 +101,8 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="auth" />
         <Stack.Screen name="recipe/[id]" />
+        <Stack.Screen name="user/[id]" />
+        <Stack.Screen name="search-users" />
         <Stack.Screen name="recipes" />
         <Stack.Screen name="create-recipe" />
         <Stack.Screen name="+not-found" />

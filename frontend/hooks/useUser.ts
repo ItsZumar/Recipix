@@ -17,6 +17,9 @@ const GET_CURRENT_USER = gql`
       updatedAt
       recipesCount
       favoriteRecipesCount
+      followersCount
+      followingCount
+      totalRecipeViews
     }
   }
 `;

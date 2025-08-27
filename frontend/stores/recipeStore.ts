@@ -98,7 +98,11 @@ export const useRecipeStore = create<RecipeState>()(
             tags: input.tags || [],
             isPublic: input.isPublic ?? true,
             isPublished: input.isPublished ?? true,
-            authorId: 'current-user-id', // This should come from auth store
+            rating: 0,
+            ratingCount: 0,
+            viewCount: 0,
+            favoriteCount: 0,
+            // author will be set by the backend based on the authenticated user
             author: {
               id: 'current-user-id',
               username: 'Current User',

@@ -77,7 +77,7 @@ export const ListInputField: React.FC<ListInputFieldProps> = ({
         )}
       </View>
       
-      <ScrollView style={styles.itemsContainer} showsVerticalScrollIndicator={false}>
+      <View style={styles.itemsContainer}>
         {items.map((item, index) => (
           <View key={index} style={styles.itemContainer}>
             {variant === 'numbered' && (
@@ -106,7 +106,7 @@ export const ListInputField: React.FC<ListInputFieldProps> = ({
             )}
           </View>
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   itemsContainer: {
-    maxHeight: hp(30),
+    // Removed maxHeight constraint to allow unlimited items
   },
   itemContainer: {
     flexDirection: 'row',

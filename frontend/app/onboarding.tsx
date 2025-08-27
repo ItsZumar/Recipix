@@ -86,13 +86,18 @@ export default function OnboardingScreen() {
 
   const handleComplete = async () => {
     try {
+      console.log('Starting onboarding completion...');
       // Mark onboarding as completed
       const success = await markOnboardingCompleted();
       
       if (success) {
-        // Navigate to auth or main app
-        router.replace('/auth/login');
+        console.log('Onboarding marked as completed, navigating to login...');
+        // Add a small delay to ensure state is updated
+        setTimeout(() => {
+          router.replace('/auth/login');
+        }, 100);
       } else {
+        console.log('Failed to mark onboarding as completed');
         Alert.alert('Error', 'Failed to save onboarding status. Please try again.');
       }
     } catch (error) {

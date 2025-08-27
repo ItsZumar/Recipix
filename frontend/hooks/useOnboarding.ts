@@ -25,6 +25,8 @@ export const useOnboarding = () => {
     try {
       await AsyncStorage.setItem('onboardingCompleted', 'true');
       setIsOnboardingCompleted(true);
+      // Force a re-check to ensure the state is properly updated
+      await checkOnboardingStatus();
       return true;
     } catch (error) {
       console.error('Error marking onboarding as completed:', error);

@@ -14,7 +14,15 @@ const typeDefs = gql`
     createdAt: String!
     updatedAt: String!
     recipes: [Recipe!]!
+    recipesCount: Int!
     favoriteRecipes: [Recipe!]!
+    favoriteRecipesCount: Int!
+    followers: [User!]!
+    followersCount: Int!
+    following: [User!]!
+    followingCount: Int!
+    isFollowing: Boolean
+    totalRecipeViews: Int!
   }
 
   type Recipe {
@@ -190,6 +198,10 @@ const typeDefs = gql`
     # Popular queries
     popularRecipes(limit: Int): [Recipe!]!
     recentRecipes(limit: Int): [Recipe!]!
+    
+    # Follow queries
+    userFollowers(userId: ID!, limit: Int, offset: Int): [User!]!
+    userFollowing(userId: ID!, limit: Int, offset: Int): [User!]!
   }
 
   type Mutation {
@@ -213,6 +225,10 @@ const typeDefs = gql`
     unfavoriteRecipe(id: ID!): Boolean!
     rateRecipe(id: ID!, rating: Int!): Recipe!
     viewRecipe(id: ID!): Recipe!
+    
+    # Follow interactions
+    followUser(userId: ID!): Boolean!
+    unfollowUser(userId: ID!): Boolean!
   }
 
   type Subscription {

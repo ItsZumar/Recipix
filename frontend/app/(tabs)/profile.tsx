@@ -25,6 +25,8 @@ export default function ProfileScreen() {
 
   const favoriteRecipesCount = currentUserData?.me?.favoriteRecipesCount || 0;
   const recipesCreatedCount = currentUserData?.me?.recipesCount || 0;
+  const recipeViewsCount = currentUserData?.me?.totalRecipeViews || 0;
+  const followersCount = currentUserData?.me?.followersCount || 0;
 
   const handleProfileImageChange = async () => {
     const result = await showImagePickerOptions(getProfileImageOptions());
@@ -47,8 +49,8 @@ export default function ProfileScreen() {
   const profileStats = [
     { id: 1, label: "Recipes Created", value: recipesCreatedCount.toString(), icon: "restaurant" as const },
     { id: 2, label: "Favorite Recipes", value: favoriteRecipesCount.toString(), icon: "heart" as const },
-    { id: 3, label: "Recipe Views", value: "156", icon: "eye" as const },
-    { id: 4, label: "Followers", value: "24", icon: "people" as const },
+    { id: 3, label: "Recipe Views", value: recipeViewsCount.toString(), icon: "eye" as const },
+    { id: 4, label: "Followers", value: followersCount.toString(), icon: "people" as const },
   ];
 
   return (
@@ -154,6 +156,17 @@ export default function ProfileScreen() {
                 Favorite Recipes
               </ThemedText>
               <ThemedText style={[styles.actionSubtitle, { color: textColor }]}>Your saved recipes</ThemedText>
+            </ThemedView>
+            <Ionicons name="chevron-forward" size={wp(5)} color={iconColor} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionButton, { borderColor: iconColor }]} onPress={() => router.push("/search-users")}>
+            <Ionicons name="people-outline" size={wp(6)} color={tintColor} />
+            <ThemedView style={styles.actionTextContainer}>
+              <ThemedText type="defaultSemiBold" style={[styles.actionTitle, { color: textColor }]}>
+                Search Users
+              </ThemedText>
+              <ThemedText style={[styles.actionSubtitle, { color: textColor }]}>Find and connect with others</ThemedText>
             </ThemedView>
             <Ionicons name="chevron-forward" size={wp(5)} color={iconColor} />
           </TouchableOpacity>

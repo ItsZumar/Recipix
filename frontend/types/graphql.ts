@@ -13,6 +13,10 @@ export interface User {
   recipesCount?: number;
   favoriteRecipes?: Recipe[];
   favoriteRecipesCount?: number;
+  followersCount?: number;
+  followingCount?: number;
+  isFollowing?: boolean;
+  totalRecipeViews?: number;
 }
 
 export interface Ingredient {
@@ -41,7 +45,6 @@ export interface Recipe {
   ratingCount: number;
   viewCount: number;
   favoriteCount: number;
-  authorId: string;
   author?: User;
   createdAt: string;
   updatedAt: string;
@@ -162,6 +165,22 @@ export interface GetUserFavoritesResponse {
   me: {
     favoriteRecipes: Recipe[];
   };
+}
+
+export interface FollowUserResponse {
+  followUser: boolean;
+}
+
+export interface UnfollowUserResponse {
+  unfollowUser: boolean;
+}
+
+export interface GetUserFollowersResponse {
+  userFollowers: User[];
+}
+
+export interface GetUserFollowingResponse {
+  userFollowing: User[];
 }
 
 // Pagination Types

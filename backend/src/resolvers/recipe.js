@@ -283,14 +283,46 @@ const recipeResolvers = {
       return recipe;
     }),
     
-    viewRecipe: async (parent, { id }) => {
+    viewRecipe: async (parent, { id }, { user, req }) => {
       const recipe = await Recipe.findByPk(id);
       
       if (!recipe) {
         throw new Error('Recipe not found');
       }
       
-      await recipe.increment('viewCount');
+      try {
+        const { RecipeView } = require('../models');
+        
+        // Get IP address and user agent
+        const ipAddress = req?.ip || req?.connection?.remoteAddress || 'unknown';
+        const userAgent = req?.headers?.['user-agent'] || 'unknown';
+        
+        // Check if this view already exists (prevent duplicate views from same user/IP)
+        const existingView = await RecipeView.findOne({
+          where: {
+            recipeId: id,
+            viewerId: user?.id || null,
+            ipAddress: ipAddress
+          }
+        });
+        
+        if (!existingView) {
+          // Create new view record
+          await RecipeView.create({
+            recipeId: id,
+            viewerId: user?.id || null,
+            ipAddress: ipAddress,
+            userAgent: userAgent
+          });
+          
+          // Increment recipe view count
+          await recipe.increment('viewCount');
+        }
+      } catch (error) {
+        console.error('Error tracking recipe view:', error);
+        // Still increment view count even if tracking fails
+        await recipe.increment('viewCount');
+      }
       
       return recipe;
     },
