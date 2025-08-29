@@ -8,10 +8,6 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Header } from "@/components/Header";
 import { ScreenWrapper, useScreenColors } from "@/components/ScreenWrapper";
-import { ActionModal, useActionModal, ModalAction } from "@/components/ActionModal";
-import { useUser } from "@/stores/authStore";
-import { useThemeStore } from "@/stores/themeStore";
-import { NotificationBadge } from "@/components/NotificationBadge";
 import { useNotificationStore } from "@/stores/notificationStore";
 
 interface SettingItemProps {
@@ -65,100 +61,50 @@ const SettingItem: React.FC<SettingItemProps> = ({
   );
 };
 
-export default function SettingsScreen() {
+export default function NotificationSettingsScreen() {
   const router = useRouter();
-  const user = useUser();
   const { backgroundColor, textColor, iconColor, tintColor } = useScreenColors();
-  const { visible, showModal, hideModal } = useActionModal();
-
-  // Theme state
-  const { isDark, themeMode, setThemeMode } = useThemeStore();
-
-  // Notification state
   const { preferences, updatePreferences } = useNotificationStore();
 
-  const handleLogout = () => {
-    const actions: ModalAction[] = [
-      {
-        id: 'logout',
-        title: 'Logout',
-        icon: 'log-out',
-        onPress: () => {
-          hideModal();
-          // TODO: Implement logout logic
-          Alert.alert('Logout', 'Logout functionality will be implemented');
-        },
-        style: 'destructive',
-      },
-    ];
-
-    showModal();
+  const handleQuietHoursPress = () => {
+    Alert.alert(
+      'Quiet Hours',
+      'Set times when you don\'t want to receive notifications',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Configure', 
+          onPress: () => {
+            // TODO: Implement time picker for quiet hours
+            Alert.alert('Coming Soon', 'Quiet hours configuration will be implemented in a future update.');
+          }
+        }
+      ]
+    );
   };
 
-  const handleDeleteAccount = () => {
-    const actions: ModalAction[] = [
-      {
-        id: 'delete',
-        title: 'Delete Account',
-        icon: 'trash',
-        onPress: () => {
-          hideModal();
-          Alert.alert('Delete Account', 'Delete account functionality will be implemented');
-        },
-        style: 'destructive',
-      },
-    ];
-
-    showModal();
+  const getQuietHoursText = () => {
+    if (!preferences.quietHours.enabled) {
+      return 'Disabled';
+    }
+    return `${preferences.quietHours.start} - ${preferences.quietHours.end}`;
   };
-
-  const modalActions: ModalAction[] = [
-    {
-      id: 'cancel',
-      title: 'Cancel',
-      onPress: hideModal,
-      style: 'default',
-    },
-  ];
 
   return (
     <ScreenWrapper>
       <Header 
-        title="Settings" 
-        rightAccessory={{
-          icon: 'notifications',
-          onPress: () => router.push("/notifications")
+        title="Notification Settings" 
+        leftAccessory={{
+          icon: 'arrow-back',
+          onPress: () => router.back()
         }}
       />
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Account Section */}
+        {/* General Notifications */}
         <View style={styles.section}>
           <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
-            Account
-          </ThemedText>
-          
-          <ThemedView style={styles.sectionContent}>
-            <SettingItem
-              icon="person"
-              title="Profile"
-              subtitle="Edit your profile information"
-              onPress={() => router.push("/profile")}
-            />
-            
-            <SettingItem
-              icon="lock-closed"
-              title="Privacy & Security"
-              subtitle="Manage your privacy settings"
-              onPress={() => router.push("/privacy-security")}
-            />
-          </ThemedView>
-        </View>
-
-        {/* Notifications Section */}
-        <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
-            Notifications
+            General
           </ThemedText>
           
           <ThemedView style={styles.sectionContent}>
@@ -193,6 +139,37 @@ export default function SettingsScreen() {
             />
             
             <SettingItem
+              icon="moon"
+              title="Quiet Hours"
+              subtitle={getQuietHoursText()}
+              onPress={handleQuietHoursPress}
+            />
+          </ThemedView>
+        </View>
+
+        {/* Recipe Notifications */}
+        <View style={styles.section}>
+          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
+            Recipe Activity
+          </ThemedText>
+          
+          <ThemedView style={styles.sectionContent}>
+            <SettingItem
+              icon="restaurant"
+              title="New Recipe Notifications"
+              subtitle="When someone you follow posts a new recipe"
+              rightElement={
+                <Switch
+                  value={preferences.recipeNotifications}
+                  onValueChange={(value) => updatePreferences({ recipeNotifications: value })}
+                  trackColor={{ false: '#767577', true: tintColor }}
+                  thumbColor={preferences.recipeNotifications ? '#fff' : '#f4f3f4'}
+                />
+              }
+              showChevron={false}
+            />
+            
+            <SettingItem
               icon="heart"
               title="Like Notifications"
               subtitle="When someone likes your recipe"
@@ -208,6 +185,30 @@ export default function SettingsScreen() {
             />
             
             <SettingItem
+              icon="chatbubble"
+              title="Comment Notifications"
+              subtitle="When someone comments on your recipe"
+              rightElement={
+                <Switch
+                  value={preferences.commentNotifications}
+                  onValueChange={(value) => updatePreferences({ commentNotifications: value })}
+                  trackColor={{ false: '#767577', true: tintColor }}
+                  thumbColor={preferences.commentNotifications ? '#fff' : '#f4f3f4'}
+                />
+              }
+              showChevron={false}
+            />
+          </ThemedView>
+        </View>
+
+        {/* Social Notifications */}
+        <View style={styles.section}>
+          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
+            Social Activity
+          </ThemedText>
+          
+          <ThemedView style={styles.sectionContent}>
+            <SettingItem
               icon="person-add"
               title="Follow Notifications"
               subtitle="When someone follows you"
@@ -221,34 +222,41 @@ export default function SettingsScreen() {
               }
               showChevron={false}
             />
-            
-           
           </ThemedView>
         </View>
 
-        {/* Appearance Section */}
+        {/* System Notifications */}
         <View style={styles.section}>
           <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
-            Appearance
+            System & Reminders
           </ThemedText>
           
           <ThemedView style={styles.sectionContent}>
             <SettingItem
-              icon="moon"
-              title="Dark Mode"
-              subtitle={themeMode === 'system' ? 'Follow system setting' : themeMode === 'dark' ? 'Always dark' : 'Always light'}
+              icon="information-circle"
+              title="System Notifications"
+              subtitle="App updates and important announcements"
               rightElement={
                 <Switch
-                  value={isDark}
-                  onValueChange={() => {
-                    if (themeMode === 'system') {
-                      setThemeMode(isDark ? 'light' : 'dark');
-                    } else {
-                      setThemeMode(themeMode === 'light' ? 'dark' : 'light');
-                    }
-                  }}
+                  value={preferences.systemNotifications}
+                  onValueChange={(value) => updatePreferences({ systemNotifications: value })}
                   trackColor={{ false: '#767577', true: tintColor }}
-                  thumbColor={isDark ? '#fff' : '#f4f3f4'}
+                  thumbColor={preferences.systemNotifications ? '#fff' : '#f4f3f4'}
+                />
+              }
+              showChevron={false}
+            />
+            
+            <SettingItem
+              icon="alarm"
+              title="Reminder Notifications"
+              subtitle="Cooking reminders and meal planning"
+              rightElement={
+                <Switch
+                  value={preferences.reminderNotifications}
+                  onValueChange={(value) => updatePreferences({ reminderNotifications: value })}
+                  trackColor={{ false: '#767577', true: tintColor }}
+                  thumbColor={preferences.reminderNotifications ? '#fff' : '#f4f3f4'}
                 />
               }
               showChevron={false}
@@ -256,64 +264,16 @@ export default function SettingsScreen() {
           </ThemedView>
         </View>
 
-        {/* App Section */}
+        {/* Information */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
-            App
-          </ThemedText>
-          
-          <ThemedView style={styles.sectionContent}>
-           
-            <SettingItem
-              icon="document-text"
-              title="Terms of Service"
-              subtitle="Read our terms of service"
-              onPress={() => router.push("/terms-of-service")}
-            />
-            
-            <SettingItem
-              icon="information-circle"
-              title="About"
-              subtitle="App version and information"
-              onPress={() => router.push("/about")}
-            />
-          </ThemedView>
-        </View>
-
-        {/* Danger Zone */}
-        <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: '#FF3B30' }]}>
-            Danger Zone
-          </ThemedText>
-          
-          <ThemedView style={styles.sectionContent}>
-            <SettingItem
-              icon="log-out"
-              title="Logout"
-              subtitle="Sign out of your account"
-              onPress={handleLogout}
-            />
-            
-            <SettingItem
-              icon="trash"
-              title="Delete Account"
-              subtitle="Permanently delete your account"
-              onPress={handleDeleteAccount}
-            />
+          <ThemedView style={styles.infoContainer}>
+            <Ionicons name="information-circle" size={wp(5)} color={iconColor} />
+            <ThemedText style={[styles.infoText, { color: iconColor }]}>
+              You can customize which notifications you receive. Disabled notifications will not appear in your notification center.
+            </ThemedText>
           </ThemedView>
         </View>
       </ScrollView>
-
-      {/* Logout/Delete Modal */}
-      <ActionModal
-        visible={visible}
-        onClose={hideModal}
-        title="Confirm Action"
-        subtitle="Are you sure you want to perform this action? This cannot be undone."
-        actions={modalActions}
-        showCancelButton={true}
-        cancelText="Cancel"
-      />
     </ScreenWrapper>
   );
 }
@@ -374,5 +334,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: wp(2),
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: wp(4),
+    borderRadius: wp(3),
+    gap: wp(3),
+  },
+  infoText: {
+    flex: 1,
+    fontSize: wp(3.5),
+    lineHeight: hp(2.5),
   },
 });

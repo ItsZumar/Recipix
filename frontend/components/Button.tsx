@@ -1,99 +1,98 @@
 import React from 'react';
-import { TouchableOpacity, TouchableOpacityProps, StyleSheet, ActivityIndicator } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Theme, ComponentStyles, getButtonColors } from '@/constants/Theme';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
 
-export interface ButtonProps extends TouchableOpacityProps {
-  variant?: 'primary' | 'secondary' | 'outline';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { Theme } from '@/constants/Theme';
+
+interface ButtonProps {
+  title: string;
+  onPress: () => void;
+  variant?: 'primary' | 'secondary' | 'outline' | 'disabled';
   size?: 'small' | 'medium' | 'large';
   loading?: boolean;
   disabled?: boolean;
-  children: React.ReactNode;
-  textStyle?: any;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+  icon?: React.ReactNode;
 }
 
 export const Button: React.FC<ButtonProps> = ({
+  title,
+  onPress,
   variant = 'primary',
   size = 'medium',
   loading = false,
   disabled = false,
-  children,
   style,
   textStyle,
-  ...props
+  icon,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { isDark } = useAppTheme();
+  const themeColors = Theme[isDark ? 'dark' : 'light'];
   
-  // Determine the actual variant based on disabled state
+  // Determine the actual variant (disabled takes precedence)
   const actualVariant = disabled ? 'disabled' : variant;
-  const buttonColors = getButtonColors(isDark, actualVariant);
-  
-  // Get size-specific styles
-  const sizeStyles = getSizeStyles(size);
-  
-  // Combine styles
-  const buttonStyle = [
-    ComponentStyles.button[variant],
-    sizeStyles,
-    {
-      backgroundColor: buttonColors.background,
-      borderColor: buttonColors.border,
+  const buttonColors = themeColors.button[actualVariant];
+
+  const sizeStyles = {
+    small: {
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      fontSize: 14,
     },
-    style,
-  ];
-  
-  const textColor = buttonColors.text;
-  
+    medium: {
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      fontSize: 16,
+    },
+    large: {
+      paddingVertical: 16,
+      paddingHorizontal: 32,
+      fontSize: 18,
+    },
+  };
+
+  const buttonStyle: ViewStyle = {
+    backgroundColor: buttonColors.background,
+    borderColor: buttonColors.border,
+    borderWidth: actualVariant === 'outline' ? 1 : 0,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    opacity: disabled ? 0.6 : 1,
+    ...sizeStyles[size],
+    ...style,
+  };
+
+  const textStyleObj: TextStyle = {
+    color: buttonColors.text,
+    fontWeight: '600',
+    fontSize: sizeStyles[size].fontSize,
+    ...textStyle,
+  };
+
   return (
     <TouchableOpacity
       style={buttonStyle}
+      onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
-      {...props}
     >
       {loading ? (
         <ActivityIndicator 
-          color={textColor} 
           size="small" 
+          color={buttonColors.text} 
+          style={{ marginRight: 8 }}
         />
+      ) : icon ? (
+        <React.Fragment>
+          {icon}
+          <Text style={[textStyleObj, { marginLeft: 8 }]}>{title}</Text>
+        </React.Fragment>
       ) : (
-        <ThemedText 
-          style={[
-            styles.text,
-            { color: textColor },
-            textStyle,
-          ]}
-        >
-          {children}
-        </ThemedText>
+        <Text style={textStyleObj}>{title}</Text>
       )}
     </TouchableOpacity>
   );
 };
-
-const getSizeStyles = (size: 'small' | 'medium' | 'large') => {
-  switch (size) {
-    case 'small':
-      return {
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-      };
-    case 'large':
-      return {
-        paddingVertical: 16,
-        paddingHorizontal: 24,
-      };
-    default:
-      return {};
-  }
-};
-
-const styles = StyleSheet.create({
-  text: {
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-});

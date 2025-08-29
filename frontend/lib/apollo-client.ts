@@ -21,7 +21,7 @@ const getBackendUrl = () => {
     const { Platform } = require("react-native");
     let url: string;
     if (Platform.OS === "android") {
-      url = "http://192.168.1.4:4000/graphql"; // Android emulator
+      url = "http://192.168.1.7:4000/graphql"; // Android emulator
     } else if (Platform.OS === "ios") {
       url = "http://localhost:4000/graphql"; // iOS simulator
     } else {

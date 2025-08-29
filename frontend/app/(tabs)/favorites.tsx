@@ -1,21 +1,24 @@
-import React from "react";
-import { StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
+import React, { useState, useCallback } from "react";
+import { StyleSheet, TouchableOpacity, View, FlatList, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { wp, hp } from "@/utils/responsive";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { RecipeCard } from "@/components/RecipeCard";
 import { Header } from "@/components/Header";
 import { ScreenWrapper, useScreenColors } from "@/components/ScreenWrapper";
-import { useUserFavorites, useToggleFavorite } from "@/hooks/useFavorites";
+import { ActionModal, useActionModal, ModalAction } from "@/components/ActionModal";
+import { RecipeCard } from "@/components/RecipeCard";
 import { Recipe } from "@/types/graphql";
+import { useUserFavorites, useToggleFavorite } from "@/hooks/useFavorites";
 
 export default function FavoritesScreen() {
   const router = useRouter();
   const { data, loading, error, refetch } = useUserFavorites();
   const { toggleFavorite, loading: toggleLoading } = useToggleFavorite();
+  const { visible, showModal, hideModal } = useActionModal();
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   const { backgroundColor, textColor, tintColor } = useScreenColors();
 
@@ -26,30 +29,27 @@ export default function FavoritesScreen() {
   };
 
   const handleUnfavorite = async (recipe: Recipe) => {
-    Alert.alert("Remove from Favorites", `Are you sure you want to remove "${recipe.title}" from your favorites?`, [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Remove",
-        style: "destructive",
-        onPress: async () => {
-          const success = await toggleFavorite(recipe.id, true);
-          if (success) {
-            // Refetch to update the list
-            refetch();
-          } else {
-            Alert.alert("Error", "Failed to remove recipe from favorites");
-          }
-        },
-      },
-    ]);
+    setSelectedRecipe(recipe);
+    showModal();
   };
 
-  const renderRecipeItem = ({ item }: { item: Recipe }) => (
-    <ThemedView style={styles.recipeContainer}>
-      <RecipeCard recipe={item} onPress={() => handleRecipePress(item.id)} />
+  const confirmUnfavorite = async () => {
+    if (!selectedRecipe) return;
+    
+    const success = await toggleFavorite(selectedRecipe.id, true);
+    if (success) {
+      // Refetch to update the list
+      refetch();
+      hideModal();
+      setSelectedRecipe(null);
+    } else {
+      // You could show an error toast here
+      console.error("Failed to remove recipe from favorites");
+    }
+  };
+
+  const renderRecipeItem = ({ item }: { item: Recipe }) => {
+    const unfavoriteButton = (
       <TouchableOpacity
         style={[styles.unfavoriteButton, { backgroundColor: "#FF3B30" }]}
         onPress={() => handleUnfavorite(item)}
@@ -57,8 +57,18 @@ export default function FavoritesScreen() {
       >
         <Ionicons name="heart-dislike" size={wp(4)} color="#fff" />
       </TouchableOpacity>
-    </ThemedView>
-  );
+    );
+
+    return (
+      <ThemedView style={styles.recipeContainer}>
+        <RecipeCard 
+          recipe={item} 
+          onPress={() => handleRecipePress(item.id)}
+          unfavoriteButton={unfavoriteButton}
+        />
+      </ThemedView>
+    );
+  };
 
   if (loading) {
     return (
@@ -86,6 +96,17 @@ export default function FavoritesScreen() {
     );
   }
 
+  const modalActions: ModalAction[] = [
+    {
+      id: 'remove',
+      title: 'Remove from Favorites',
+      icon: 'heart-dislike',
+      onPress: confirmUnfavorite,
+      style: 'destructive',
+      loading: toggleLoading,
+    },
+  ];
+
   return (
     <ScreenWrapper>
       <Header title="My Favorites" />
@@ -110,6 +131,17 @@ export default function FavoritesScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      {/* Unfavorite Modal */}
+      <ActionModal
+        visible={visible}
+        onClose={hideModal}
+        title="Remove from Favorites"
+        subtitle="Are you sure you want to remove this recipe from your favorites?"
+        actions={modalActions}
+        showCancelButton={true}
+        cancelText="Cancel"
+      />
     </ScreenWrapper>
   );
 }
@@ -184,14 +216,10 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   unfavoriteButton: {
-    position: "absolute",
-    top: wp(2),
-    right: wp(2),
     width: wp(10),
     height: wp(10),
     borderRadius: wp(5),
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 1,
   },
 });

@@ -93,7 +93,7 @@ export default function RecipesScreen() {
   // Filter recipes by difficulty or user
   const filteredRecipes = allRecipes.filter((recipe: Recipe) => {
     if (filterBy === 'all') return true;
-    if (filterBy === 'my') return recipe.authorId === currentUserId;
+    if (filterBy === 'my') return recipe.author?.id === currentUserId;
     return recipe.difficulty === filterBy;
   });
 

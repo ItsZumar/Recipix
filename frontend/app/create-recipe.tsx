@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { ScreenWrapper, useScreenColors } from "@/components/ScreenWrapper";
 import { InputField, ListInputField, SelectionInput, DropdownInput } from "@/components/inputs";
 import { Button } from "@/components/Button";
+import { ActionModal, useActionModal, ModalAction } from "@/components/ActionModal";
 import { useCreateRecipe, useUpdateRecipe, useRecipe } from "@/hooks/useRecipes";
 import { useRecipeStore } from "@/stores/recipeStore";
 import { wp, hp } from "@/utils/responsive";
@@ -18,6 +19,16 @@ export default function CreateRecipeScreen() {
   const router = useRouter();
   const { backgroundColor, textColor, iconColor, tintColor } = useScreenColors();
   const { edit } = useLocalSearchParams<{ edit?: string }>();
+  const { visible, showModal, hideModal } = useActionModal();
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    subtitle: string;
+    actions: ModalAction[];
+  }>({
+    title: '',
+    subtitle: '',
+    actions: [],
+  });
 
   // Form state
   // Cuisine options from constants
@@ -169,18 +180,50 @@ export default function CreateRecipeScreen() {
         // Update existing recipe
         result = await updateRecipe(edit, recipeData);
         if (result) {
-          Alert.alert("Success!", "Your recipe has been updated successfully!", [
+          const actions: ModalAction[] = [
             {
-              text: "View Recipe",
-              onPress: () => router.push(`/recipe/${result.id}`),
+              id: 'view',
+              title: 'View Recipe',
+              icon: 'eye',
+              onPress: () => {
+                hideModal();
+                router.push(`/recipe/${result.id}`);
+              },
+              style: 'primary',
             },
             {
-              text: "Continue Editing",
-              onPress: () => {}, // Stay on current screen
+              id: 'continue',
+              title: 'Continue Editing',
+              icon: 'pencil',
+              onPress: () => {
+                hideModal();
+              },
+              style: 'default',
             },
-          ]);
+          ];
+
+          setModalConfig({
+            title: 'Success!',
+            subtitle: 'Your recipe has been updated successfully!',
+            actions,
+          });
+          showModal();
         } else {
-          Alert.alert("Error", "Failed to update recipe. Please try again.");
+          const actions: ModalAction[] = [
+            {
+              id: 'ok',
+              title: 'OK',
+              onPress: () => hideModal(),
+              style: 'default',
+            },
+          ];
+
+          setModalConfig({
+            title: 'Error',
+            subtitle: 'Failed to update recipe. Please try again.',
+            actions,
+          });
+          showModal();
         }
       } else {
         // Create new recipe
@@ -189,14 +232,23 @@ export default function CreateRecipeScreen() {
           // Add to local store for immediate UI update
           addRecipe(result);
 
-          Alert.alert("Success!", "Your recipe has been created successfully!", [
+          const actions: ModalAction[] = [
             {
-              text: "View Recipe",
-              onPress: () => router.push(`/recipe/${result.id}`),
+              id: 'view',
+              title: 'View Recipe',
+              icon: 'eye',
+              onPress: () => {
+                hideModal();
+                router.push(`/recipe/${result.id}`);
+              },
+              style: 'primary',
             },
             {
-              text: "Create Another",
+              id: 'create-another',
+              title: 'Create Another',
+              icon: 'add',
               onPress: () => {
+                hideModal();
                 // Reset form
                 setFormData({
                   title: "",
@@ -213,15 +265,51 @@ export default function CreateRecipeScreen() {
                 setTags([""]);
                 setSelectedImage(null);
               },
+              style: 'default',
             },
-          ]);
+          ];
+
+          setModalConfig({
+            title: 'Success!',
+            subtitle: 'Your recipe has been created successfully!',
+            actions,
+          });
+          showModal();
         } else {
-          Alert.alert("Error", "Failed to create recipe. Please try again.");
+          const actions: ModalAction[] = [
+            {
+              id: 'ok',
+              title: 'OK',
+              onPress: () => hideModal(),
+              style: 'default',
+            },
+          ];
+
+          setModalConfig({
+            title: 'Error',
+            subtitle: 'Failed to create recipe. Please try again.',
+            actions,
+          });
+          showModal();
         }
       }
     } catch (error) {
       console.error("Recipe operation error:", error);
-      Alert.alert("Error", `An error occurred while ${isEditMode ? 'updating' : 'creating'} the recipe.`);
+      const actions: ModalAction[] = [
+        {
+          id: 'ok',
+          title: 'OK',
+          onPress: () => hideModal(),
+          style: 'default',
+        },
+      ];
+
+      setModalConfig({
+        title: 'Error',
+        subtitle: `An error occurred while ${isEditMode ? 'updating' : 'creating'} the recipe.`,
+        actions,
+      });
+      showModal();
     }
   };
 
@@ -393,14 +481,27 @@ export default function CreateRecipeScreen() {
           <ListInputField title="Tags" items={tags} onItemsChange={setTags} placeholder="Add tag" />
 
           {/* Submit Button */}
-          <Button variant="primary" size="large" loading={loading} disabled={loading} onPress={handleSubmit} style={styles.submitButton}>
-            {loading 
-              ? (isEditMode ? "Updating Recipe..." : "Creating Recipe...") 
-              : (isEditMode ? "Update Recipe" : "Create Recipe")
-            }
-          </Button>
+          <Button 
+            title="Create Recipe"
+            variant="primary" 
+            size="large" 
+            loading={loading} 
+            disabled={loading} 
+            onPress={handleSubmit} 
+            style={styles.submitButton}
+          />
         </View>
       </ScrollView>
+
+      {/* Success/Error Modal */}
+      <ActionModal
+        visible={visible}
+        onClose={hideModal}
+        title={modalConfig.title}
+        subtitle={modalConfig.subtitle}
+        actions={modalConfig.actions}
+        showCancelButton={false}
+      />
     </ScreenWrapper>
   );
 }

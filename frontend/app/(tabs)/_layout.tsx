@@ -6,17 +6,18 @@ import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Theme } from '@/constants/Theme';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { NotificationBadge } from '@/components/NotificationBadge';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { isDark } = useAppTheme();
 
-  const themeColors = Theme[colorScheme ?? 'light'];
+  const themeColors = Theme[isDark ? 'dark' : 'light'];
   
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: themeColors.tint,
+        tabBarActiveTintColor: isDark ? '#FFFFFF' : themeColors.tint,
         tabBarInactiveTintColor: themeColors.text.tertiary,
         headerShown: false,
         tabBarButton: HapticTab,
@@ -58,7 +59,7 @@ export default function TabLayout() {
             <IconSymbol 
               size={focused ? 32 : 28} 
               name="plus.circle.fill" 
-              color={focused ? themeColors.tint : color} 
+              color={color} 
             />
           ),
         }}
@@ -74,7 +75,12 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <React.Fragment>
+              <IconSymbol size={28} name="gearshape.fill" color={color} />
+              <NotificationBadge size="small" />
+            </React.Fragment>
+          ),
         }}
       />
     </Tabs>

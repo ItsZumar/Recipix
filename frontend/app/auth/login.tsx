@@ -96,14 +96,13 @@ export default function LoginScreen() {
             />
 
             <Button
+              title="Sign In"
               variant="primary"
               size="large"
               loading={isSubmitting}
               disabled={!canSubmit}
               onPress={handleSubmit}
-            >
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
-            </Button>
+            />
           </View>
 
           <View style={styles.footer}>

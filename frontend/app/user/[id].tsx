@@ -248,10 +248,10 @@ export default function UserProfileScreen() {
                 <ThemedView style={styles.emptyState}>
                   <Ionicons name="restaurant-outline" size={wp(15)} color={iconColor} />
                   <ThemedText style={[styles.emptyStateText, { color: textColor }]}>
-                    {user.recipesCount > 0 ? "Loading recipes..." : "No recipes yet"}
+                    {(user.recipesCount || 0) > 0 ? "Loading recipes..." : "No recipes yet"}
                   </ThemedText>
                   <ThemedText style={[styles.emptyStateSubtext, { color: textColor }]}>
-                    {user.recipesCount > 0 
+                    {(user.recipesCount || 0) > 0 
                       ? "Please wait while we load the recipes..." 
                       : `${user.username} hasn't created any recipes yet.`
                     }
