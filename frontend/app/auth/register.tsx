@@ -119,14 +119,13 @@ export default function RegisterScreen() {
             />
 
             <Button
+              title="Create Account"
               variant="primary"
               size="large"
               loading={isSubmitting}
               disabled={!canSubmit}
               onPress={handleSubmit}
-            >
-              {isSubmitting ? "Creating Account..." : "Create Account"}
-            </Button>
+            />
           </View>
 
           <View style={styles.footer}>

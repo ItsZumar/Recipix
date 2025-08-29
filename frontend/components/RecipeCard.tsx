@@ -6,6 +6,8 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { Recipe } from '@/types/graphql';
 import { wp, hp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
+import { Theme } from '@/constants/Theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -13,6 +15,7 @@ interface RecipeCardProps {
   onFavoritePress?: () => void;
   isFavorited?: boolean;
   showFavoriteButton?: boolean;
+  unfavoriteButton?: React.ReactNode;
 }
 
 export const RecipeCard: React.FC<RecipeCardProps> = ({ 
@@ -20,10 +23,13 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
   onPress, 
   onFavoritePress, 
   isFavorited = false, 
-  showFavoriteButton = false 
+  showFavoriteButton = false,
+  unfavoriteButton
 }) => {
   const router = useRouter();
-  const backgroundColor = useThemeColor({}, 'background');
+  const { isDark } = useAppTheme();
+  const themeColors = Theme[isDark ? 'dark' : 'light'];
+  const cardBackgroundColor = themeColors.card;
   const textColor = useThemeColor({}, 'text');
   const iconColor = useThemeColor({}, 'icon');
   const tintColor = useThemeColor({}, 'tint');
@@ -59,11 +65,9 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
     return null;
   }
 
-
-
   return (
     <TouchableOpacity
-      style={[styles.container, { backgroundColor }]}
+      style={[styles.container, { backgroundColor: cardBackgroundColor }]}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -71,28 +75,34 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
         {recipe.image ? (
           <Image source={{ uri: recipe.image }} style={styles.image} />
         ) : (
-          <View style={[styles.placeholderImage, { backgroundColor: backgroundColor === '#fff' ? '#f0f0f0' : '#404040' }]}>
+          <View style={[styles.placeholderImage, { backgroundColor: isDark ? '#404040' : '#f0f0f0' }]}>
             <Ionicons name="restaurant" size={wp(8)} color={iconColor} />
           </View>
         )}
         <View style={styles.overlay}>
-          <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(recipe.difficulty) }]}>
-            <Ionicons name={getDifficultyIcon(recipe.difficulty) as any} size={wp(3)} color="#fff" />
-            <ThemedText style={styles.difficultyText}>{recipe.difficulty}</ThemedText>
+          <View style={styles.overlayLeft}>
+            {unfavoriteButton}
           </View>
           
-          {showFavoriteButton && onFavoritePress && (
-            <TouchableOpacity
-              style={[styles.favoriteButton, { backgroundColor: isFavorited ? '#FF3B30' : 'rgba(0, 0, 0, 0.5)' }]}
-              onPress={onFavoritePress}
-            >
-              <Ionicons 
-                name={isFavorited ? "heart" : "heart-outline"} 
-                size={wp(4)} 
-                color="#fff" 
-              />
-            </TouchableOpacity>
-          )}
+          <View style={styles.overlayRight}>
+            <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(recipe.difficulty) }]}>
+              <Ionicons name={getDifficultyIcon(recipe.difficulty) as any} size={wp(3)} color="#fff" />
+              <ThemedText style={styles.difficultyText}>{recipe.difficulty}</ThemedText>
+            </View>
+            
+            {showFavoriteButton && onFavoritePress && (
+              <TouchableOpacity
+                style={[styles.favoriteButton, { backgroundColor: isFavorited ? '#FF3B30' : 'rgba(0, 0, 0, 0.5)' }]}
+                onPress={onFavoritePress}
+              >
+                <Ionicons 
+                  name={isFavorited ? "heart" : "heart-outline"} 
+                  size={wp(4)} 
+                  color="#fff" 
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
       
@@ -169,8 +179,19 @@ const styles = StyleSheet.create({
   overlay: {
     position: 'absolute',
     top: hp(1.5),
+    left: wp(3),
     right: wp(3),
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  overlayLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  overlayRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: wp(2),
   },
   favoriteButton: {

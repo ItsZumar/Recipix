@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { wp, hp } from '@/utils/responsive';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   centerSubtitle,
   backgroundColor,
 }) => {
+  const insets = useSafeAreaInsets();
   const defaultBackgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
@@ -55,7 +57,13 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <ThemedView style={[styles.container, { backgroundColor: headerBackgroundColor }]}>
+    <ThemedView style={[
+      styles.container, 
+      { 
+        backgroundColor: headerBackgroundColor,
+        paddingTop: insets.top  // Add safe area top padding
+      }
+    ]}>
       {/* Left Accessory */}
       {renderAccessory(leftAccessory)}
 
@@ -84,7 +92,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: wp(4),
     paddingVertical: hp(2),
-    paddingTop: hp(2.5),
     minHeight: hp(8),
   },
   centerContainer: {

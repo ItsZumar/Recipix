@@ -18,14 +18,14 @@ import 'react-native-reanimated';
 import { ApolloProvider } from '@apollo/client';
 import { useEffect } from 'react';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { client } from '@/lib/apollo-client';
 import { useAuthStore } from '@/stores/authStore';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const { isDark, isHydrated: isThemeHydrated } = useAppTheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     'Inter-Regular': Inter_400Regular,
@@ -41,7 +41,7 @@ function RootLayoutNav() {
   // Get auth state
   const user = useAuthStore((state) => state?.user ?? null);
   const isLoading = useAuthStore((state) => state?.isLoading ?? true);
-  const isHydrated = useAuthStore((state) => state?.isHydrated ?? false);
+  const isAuthHydrated = useAuthStore((state) => state?.isHydrated ?? false);
   
   // Get onboarding state
   const { isOnboardingCompleted, isLoading: isOnboardingLoading } = useOnboarding();
@@ -51,7 +51,7 @@ function RootLayoutNav() {
 
   // Handle authentication and onboarding routing
   useEffect(() => {
-    if (!loaded || !isHydrated || isLoading || isOnboardingLoading) return;
+    if (!loaded || !isAuthHydrated || !isThemeHydrated || isLoading || isOnboardingLoading) return;
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
@@ -83,15 +83,15 @@ function RootLayoutNav() {
         router.replace('/(tabs)');
       }
     }
-  }, [user, segments, isLoading, isHydrated, loaded, isOnboardingCompleted, isOnboardingLoading, router]);
+  }, [user, segments, isLoading, isAuthHydrated, isThemeHydrated, loaded, isOnboardingCompleted, isOnboardingLoading, router]);
 
-  if (!loaded || !isHydrated || isOnboardingLoading) {
-    // Show loading screen while fonts are loading, store is hydrating, or onboarding is loading
+  if (!loaded || !isAuthHydrated || !isThemeHydrated || isOnboardingLoading) {
+    // Show loading screen while fonts are loading, stores are hydrating, or onboarding is loading
     return <LoadingScreen message="Initializing..." />;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -105,9 +105,12 @@ function RootLayoutNav() {
         <Stack.Screen name="search-users" />
         <Stack.Screen name="recipes" />
         <Stack.Screen name="create-recipe" />
+        <Stack.Screen name="privacy-security" />
+        <Stack.Screen name="notifications" />
+        <Stack.Screen name="notification-settings" />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
     </ThemeProvider>
   );
 }

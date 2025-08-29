@@ -29,7 +29,7 @@ export const useFollow = (userId: string) => {
               id: cache.identify({ __typename: 'User', id: userId }),
               fields: {
                 isFollowing: () => true,
-                followersCount: (existing = 0) => existing + 1,
+                followersCount: (existing: number = 0) => existing + 1,
               },
             });
           }
@@ -52,7 +52,7 @@ export const useFollow = (userId: string) => {
               id: cache.identify({ __typename: 'User', id: userId }),
               fields: {
                 isFollowing: () => false,
-                followersCount: (existing = 0) => Math.max(0, existing - 1),
+                followersCount: (existing: number = 0) => Math.max(0, existing - 1),
               },
             });
           }

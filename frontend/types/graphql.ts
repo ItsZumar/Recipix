@@ -11,6 +11,7 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   recipesCount?: number;
+  recipes?: Recipe[];
   favoriteRecipes?: Recipe[];
   favoriteRecipesCount?: number;
   followersCount?: number;
@@ -181,6 +182,10 @@ export interface GetUserFollowersResponse {
 
 export interface GetUserFollowingResponse {
   userFollowing: User[];
+}
+
+export interface GetUserWithFollowDataResponse {
+  user: User;
 }
 
 // Pagination Types

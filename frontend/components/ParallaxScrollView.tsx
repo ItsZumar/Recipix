@@ -1,82 +1,116 @@
-import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
-import Animated, {
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useScrollViewOffset,
-} from 'react-native-reanimated';
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  ScrollView,
+  Animated,
+  StyleSheet,
+  Dimensions,
+  RefreshControl,
+} from 'react-native';
 
-import { ThemedView } from '@/components/ThemedView';
-import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { ThemedText } from './ThemedText';
 
-const HEADER_HEIGHT = 250;
+const { width: screenWidth } = Dimensions.get('window');
 
-type Props = PropsWithChildren<{
-  headerImage: ReactElement;
-  headerBackgroundColor: { dark: string; light: string };
-}>;
+interface ParallaxScrollViewProps {
+  children: React.ReactNode;
+  headerHeight?: number;
+  headerContent?: React.ReactNode;
+  onRefresh?: () => Promise<void>;
+  refreshing?: boolean;
+  style?: any;
+}
 
-export default function ParallaxScrollView({
+export const ParallaxScrollView: React.FC<ParallaxScrollViewProps> = ({
   children,
-  headerImage,
-  headerBackgroundColor,
-}: Props) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const scrollRef = useAnimatedRef<Animated.ScrollView>();
-  const scrollOffset = useScrollViewOffset(scrollRef);
-  const bottom = useBottomTabOverflow();
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: interpolate(
-            scrollOffset.value,
-            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
-          ),
-        },
-        {
-          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [2, 1, 1]),
-        },
-      ],
-    };
+  headerHeight = 200,
+  headerContent,
+  onRefresh,
+  refreshing = false,
+  style,
+}) => {
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const { isDark } = useAppTheme();
+  const colorScheme = isDark ? 'dark' : 'light';
+
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, headerHeight],
+    outputRange: [0, -headerHeight],
+    extrapolate: 'clamp',
+  });
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, headerHeight / 2, headerHeight],
+    outputRange: [1, 0.5, 0],
+    extrapolate: 'clamp',
+  });
+
+  const imageScale = scrollY.interpolate({
+    inputRange: [-headerHeight, 0],
+    outputRange: [2, 1],
+    extrapolate: 'clamp',
   });
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={[styles.container, style]}>
+      <Animated.View
+        style={[
+          styles.header,
+          {
+            height: headerHeight,
+            transform: [{ translateY: headerTranslateY }, { scale: imageScale }],
+            opacity: headerOpacity,
+          },
+        ]}
+      >
+        {headerContent}
+      </Animated.View>
+
       <Animated.ScrollView
-        ref={scrollRef}
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollViewContent,
+          { paddingTop: headerHeight },
+        ]}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
         scrollEventThrottle={16}
-        scrollIndicatorInsets={{ bottom }}
-        contentContainerStyle={{ paddingBottom: bottom }}>
-        <Animated.View
-          style={[
-            styles.header,
-            { backgroundColor: headerBackgroundColor[colorScheme] },
-            headerAnimatedStyle,
-          ]}>
-          {headerImage}
-        </Animated.View>
-        <ThemedView style={styles.content}>{children}</ThemedView>
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colorScheme === 'dark' ? '#ECEDEE' : '#2C2C2C'}
+            />
+          ) : undefined
+        }
+      >
+        {children}
       </Animated.ScrollView>
-    </ThemedView>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   header: {
-    height: HEADER_HEIGHT,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     overflow: 'hidden',
+    zIndex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    padding: 32,
-    gap: 16,
-    overflow: 'hidden',
+  },
+  scrollViewContent: {
+    paddingBottom: 20,
   },
 });

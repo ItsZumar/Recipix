@@ -182,13 +182,12 @@ export default function OnboardingScreen() {
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           <Button
+            title="Get Started"
             variant="primary"
             size="large"
-            onPress={handleNext}
-            style={styles.nextButton}
-          >
-            {currentIndex === ONBOARDING_SLIDES.length - 1 ? 'Get Started' : 'Next'}
-          </Button>
+            onPress={handleComplete}
+            style={styles.button}
+          />
         </View>
       </View>
     </ScreenWrapper>
@@ -269,7 +268,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(6),
     paddingBottom: hp(4),
   },
-  nextButton: {
+  button: {
     width: '100%',
   },
 });

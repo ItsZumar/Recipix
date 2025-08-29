@@ -193,7 +193,7 @@ export default function RecipeDetailScreen() {
             <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
               Ingredients
             </ThemedText>
-            {recipe.ingredients.map((ingredient, index) => (
+            {recipe.ingredients.map((ingredient: any, index: number) => (
               <View key={index} style={styles.ingredientItem}>
                 <View style={[styles.bullet, { backgroundColor: iconColor }]} />
                 <ThemedText style={[styles.ingredientText, { color: textColor }]}>
@@ -209,7 +209,7 @@ export default function RecipeDetailScreen() {
             <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor }]}>
               Instructions
             </ThemedText>
-            {recipe.instructions.map((instruction, index) => (
+            {recipe.instructions.map((instruction: string, index: number) => (
               <View key={index} style={styles.instructionItem}>
                 <View style={[styles.stepNumber, { backgroundColor: iconColor }]}>
                   <ThemedText style={styles.stepNumberText}>{index + 1}</ThemedText>
@@ -226,7 +226,7 @@ export default function RecipeDetailScreen() {
                 Tags
               </ThemedText>
               <View style={styles.tagsContainer}>
-                {recipe.tags.map((tag, index) => (
+                {recipe.tags.map((tag: string, index: number) => (
                   <View key={index} style={[styles.tag, { backgroundColor: backgroundColor === "#fff" ? "#f0f0f0" : "#404040" }]}>
                     <ThemedText style={[styles.tagText, { color: textColor }]}>{tag}</ThemedText>
                   </View>
