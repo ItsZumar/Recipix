@@ -16,7 +16,7 @@ export interface ModalAction {
   loading?: boolean;
 }
 
-export interface StylingModalProps {
+export interface ActionModalProps {
   visible: boolean;
   onClose: () => void;
   title?: string;
@@ -28,7 +28,7 @@ export interface StylingModalProps {
   children?: ReactNode;
 }
 
-export const StylingModal: React.FC<StylingModalProps> = ({
+export const ActionModal: React.FC<ActionModalProps> = ({
   visible,
   onClose,
   title,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
 });
 
 // Hook for easy modal state management
-export const useStylingModal = () => {
+export const useActionModal = () => {
   const [visible, setVisible] = React.useState(false);
 
   const showModal = () => setVisible(true);

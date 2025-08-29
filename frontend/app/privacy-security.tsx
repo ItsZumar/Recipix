@@ -8,7 +8,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Header } from "@/components/Header";
 import { ScreenWrapper, useScreenColors } from "@/components/ScreenWrapper";
-import { StylingModal, useStylingModal, ModalAction } from "@/components/StylingModal";
+import { ActionModal, useActionModal, ModalAction } from "@/components/ActionModal";
 
 interface SettingItemProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -64,7 +64,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
 export default function PrivacySecurityScreen() {
   const router = useRouter();
   const { backgroundColor, textColor, iconColor, tintColor } = useScreenColors();
-  const { visible, showModal, hideModal } = useStylingModal();
+  const { visible, showModal, hideModal } = useActionModal();
 
   // Privacy & Security state
   const [profileVisibility, setProfileVisibility] = useState('public');
@@ -150,21 +150,6 @@ export default function PrivacySecurityScreen() {
               title="Change Password"
               subtitle="Update your account password"
               onPress={handleChangePassword}
-            />
-            
-            <SettingItem
-              icon="shield-checkmark"
-              title="Two-Factor Authentication"
-              subtitle="Add an extra layer of security"
-              rightElement={
-                <Switch
-                  value={twoFactorAuth}
-                  onValueChange={setTwoFactorAuth}
-                  trackColor={{ false: '#767577', true: tintColor }}
-                  thumbColor={twoFactorAuth ? '#fff' : '#f4f3f4'}
-                />
-              }
-              showChevron={false}
             />
             
             <SettingItem
@@ -256,20 +241,7 @@ export default function PrivacySecurityScreen() {
               showChevron={false}
             />
             
-            <SettingItem
-              icon="mail"
-              title="Show Email"
-              subtitle="Display your email on your profile"
-              rightElement={
-                <Switch
-                  value={showEmail}
-                  onValueChange={setShowEmail}
-                  trackColor={{ false: '#767577', true: tintColor }}
-                  thumbColor={showEmail ? '#fff' : '#f4f3f4'}
-                />
-              }
-              showChevron={false}
-            />
+            
           </ThemedView>
         </View>
 
@@ -337,7 +309,7 @@ export default function PrivacySecurityScreen() {
       </ScrollView>
 
       {/* Delete Data Modal */}
-      <StylingModal
+      <ActionModal
         visible={visible}
         onClose={hideModal}
         title="Delete All Data"

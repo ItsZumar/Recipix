@@ -8,7 +8,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Header } from "@/components/Header";
 import { ScreenWrapper, useScreenColors } from "@/components/ScreenWrapper";
-import { StylingModal, useStylingModal, ModalAction } from "@/components/StylingModal";
+import { ActionModal, useActionModal, ModalAction } from "@/components/ActionModal";
 import { useUser } from "@/stores/authStore";
 import { useThemeStore } from "@/stores/themeStore";
 import { NotificationBadge } from "@/components/NotificationBadge";
@@ -69,7 +69,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const user = useUser();
   const { backgroundColor, textColor, iconColor, tintColor } = useScreenColors();
-  const { visible, showModal, hideModal } = useStylingModal();
+  const { visible, showModal, hideModal } = useActionModal();
 
   // Theme state
   const { isDark, themeMode, setThemeMode } = useThemeStore();
@@ -222,12 +222,7 @@ export default function SettingsScreen() {
               showChevron={false}
             />
             
-            <SettingItem
-              icon="settings"
-              title="Advanced Settings"
-              subtitle="Configure detailed notification preferences"
-              onPress={() => router.push("/notification-settings")}
-            />
+           
           </ThemedView>
         </View>
 
@@ -268,32 +263,19 @@ export default function SettingsScreen() {
           </ThemedText>
           
           <ThemedView style={styles.sectionContent}>
-            <SettingItem
-              icon="help-circle"
-              title="Help & Support"
-              subtitle="Get help and contact support"
-              onPress={() => Alert.alert('Help', 'Help & Support will be implemented')}
-            />
-            
+           
             <SettingItem
               icon="document-text"
               title="Terms of Service"
               subtitle="Read our terms of service"
-              onPress={() => Alert.alert('Terms', 'Terms of Service will be implemented')}
-            />
-            
-            <SettingItem
-              icon="shield-checkmark"
-              title="Privacy Policy"
-              subtitle="Read our privacy policy"
-              onPress={() => Alert.alert('Privacy', 'Privacy Policy will be implemented')}
+              onPress={() => router.push("/terms-of-service")}
             />
             
             <SettingItem
               icon="information-circle"
               title="About"
               subtitle="App version and information"
-              onPress={() => Alert.alert('About', 'App version: 1.0.0')}
+              onPress={() => router.push("/about")}
             />
           </ThemedView>
         </View>
@@ -323,7 +305,7 @@ export default function SettingsScreen() {
       </ScrollView>
 
       {/* Logout/Delete Modal */}
-      <StylingModal
+      <ActionModal
         visible={visible}
         onClose={hideModal}
         title="Confirm Action"

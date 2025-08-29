@@ -9,7 +9,7 @@ import { Header } from "@/components/Header";
 import { ScreenWrapper, useScreenColors } from "@/components/ScreenWrapper";
 import { InputField, ListInputField, SelectionInput, DropdownInput } from "@/components/inputs";
 import { Button } from "@/components/Button";
-import { StylingModal, useStylingModal, ModalAction } from "@/components/StylingModal";
+import { ActionModal, useActionModal, ModalAction } from "@/components/ActionModal";
 import { useCreateRecipe, useUpdateRecipe, useRecipe } from "@/hooks/useRecipes";
 import { useRecipeStore } from "@/stores/recipeStore";
 import { wp, hp } from "@/utils/responsive";
@@ -19,7 +19,7 @@ export default function CreateRecipeScreen() {
   const router = useRouter();
   const { backgroundColor, textColor, iconColor, tintColor } = useScreenColors();
   const { edit } = useLocalSearchParams<{ edit?: string }>();
-  const { visible, showModal, hideModal } = useStylingModal();
+  const { visible, showModal, hideModal } = useActionModal();
   const [modalConfig, setModalConfig] = useState<{
     title: string;
     subtitle: string;
@@ -494,7 +494,7 @@ export default function CreateRecipeScreen() {
       </ScrollView>
 
       {/* Success/Error Modal */}
-      <StylingModal
+      <ActionModal
         visible={visible}
         onClose={hideModal}
         title={modalConfig.title}

@@ -108,6 +108,8 @@ function RootLayoutNav() {
         <Stack.Screen name="privacy-security" />
         <Stack.Screen name="notifications" />
         <Stack.Screen name="notification-settings" />
+        <Stack.Screen name="about" />
+        <Stack.Screen name="terms-of-service" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style={isDark ? 'light' : 'dark'} />

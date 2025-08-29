@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import React, { useState, useCallback } from "react";
+import { StyleSheet, TouchableOpacity, View, FlatList, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { wp, hp } from "@/utils/responsive";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { RecipeCard } from "@/components/RecipeCard";
 import { Header } from "@/components/Header";
 import { ScreenWrapper, useScreenColors } from "@/components/ScreenWrapper";
-import { StylingModal, useStylingModal, ModalAction } from "@/components/StylingModal";
-import { useUserFavorites, useToggleFavorite } from "@/hooks/useFavorites";
+import { ActionModal, useActionModal, ModalAction } from "@/components/ActionModal";
+import { RecipeCard } from "@/components/RecipeCard";
 import { Recipe } from "@/types/graphql";
+import { useUserFavorites, useToggleFavorite } from "@/hooks/useFavorites";
 
 export default function FavoritesScreen() {
   const router = useRouter();
   const { data, loading, error, refetch } = useUserFavorites();
   const { toggleFavorite, loading: toggleLoading } = useToggleFavorite();
-  const { visible, showModal, hideModal } = useStylingModal();
+  const { visible, showModal, hideModal } = useActionModal();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   const { backgroundColor, textColor, tintColor } = useScreenColors();
@@ -132,14 +132,15 @@ export default function FavoritesScreen() {
         />
       )}
 
-      <StylingModal
+      {/* Unfavorite Modal */}
+      <ActionModal
         visible={visible}
         onClose={hideModal}
         title="Remove from Favorites"
-        subtitle={selectedRecipe ? `Are you sure you want to remove "${selectedRecipe.title}" from your favorites?` : ''}
+        subtitle="Are you sure you want to remove this recipe from your favorites?"
         actions={modalActions}
         showCancelButton={true}
-        cancelText="Keep in Favorites"
+        cancelText="Cancel"
       />
     </ScreenWrapper>
   );
