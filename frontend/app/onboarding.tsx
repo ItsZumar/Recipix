@@ -103,9 +103,10 @@ export default function OnboardingScreen() {
 
       if (success) {
         console.log("Onboarding marked as completed, navigating to login...");
+        // Add a longer delay to ensure state updates are processed
         setTimeout(() => {
           router.replace("/auth/login");
-        }, 100);
+        }, 500);
       } else {
         console.log("Failed to mark onboarding as completed");
         Alert.alert("Error", "Failed to save onboarding status. Please try again.");

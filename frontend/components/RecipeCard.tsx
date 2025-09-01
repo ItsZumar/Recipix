@@ -8,6 +8,7 @@ import { wp, hp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import { Theme } from '@/constants/Theme';
 import { useAppTheme } from '@/hooks/useAppTheme';
+import { getValidImageUrl } from '@/utils/api';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -72,13 +73,16 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
       activeOpacity={0.8}
     >
       <View style={styles.imageContainer}>
-        {recipe.image ? (
-          <Image source={{ uri: recipe.image }} style={styles.image} />
-        ) : (
-          <View style={[styles.placeholderImage, { backgroundColor: isDark ? '#404040' : '#f0f0f0' }]}>
-            <Ionicons name="restaurant" size={wp(8)} color={iconColor} />
-          </View>
-        )}
+        {(() => {
+          const validImageUrl = getValidImageUrl(recipe.image || '');
+          return validImageUrl ? (
+            <Image source={{ uri: validImageUrl }} style={styles.image} />
+          ) : (
+            <View style={[styles.placeholderImage, { backgroundColor: isDark ? '#404040' : '#f0f0f0' }]}>
+              <Ionicons name="restaurant" size={wp(8)} color={iconColor} />
+            </View>
+          );
+        })()}
         <View style={styles.overlay}>
           <View style={styles.overlayLeft}>
             {unfavoriteButton}

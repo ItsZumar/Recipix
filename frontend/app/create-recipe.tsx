@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity, View, ScrollView, Alert, Image } from "re
 import { useRouter, router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { pickImageFromGallery, takePhoto, getRecipeImageOptions } from "@/utils/imagePicker";
+import { uploadImage } from "@/utils/api";
 
 import { ThemedText } from "@/components/ThemedText";
 import { Header } from "@/components/Header";
@@ -153,6 +154,18 @@ export default function CreateRecipeScreen() {
     if (!validateForm()) return;
 
     try {
+      // Upload image if selected
+      let imageUrl = formData.image;
+      if (selectedImage && selectedImage !== formData.image) {
+        try {
+          imageUrl = await uploadImage(selectedImage);
+        } catch (error) {
+          console.error('Image upload failed:', error);
+          Alert.alert('Upload Error', 'Failed to upload image. Please try again.');
+          return;
+        }
+      }
+
       // Transform ingredients to match backend schema
       const transformedIngredients = ingredients
         .filter((item) => item.trim())
@@ -165,6 +178,7 @@ export default function CreateRecipeScreen() {
 
       const recipeData = {
         ...formData,
+        image: imageUrl, // Use uploaded image URL
         prepTime: formData.prepTime ? Number(formData.prepTime) : undefined,
         cookTime: Number(formData.cookTime),
         servings: Number(formData.servings),
