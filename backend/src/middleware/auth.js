@@ -16,6 +16,30 @@ const authenticateToken = async (token) => {
   }
 };
 
+// Express middleware for authentication
+const authenticateTokenMiddleware = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Access token required' 
+      });
+    }
+    
+    const user = await authenticateToken(token);
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ 
+      success: false, 
+      error: 'Invalid or expired token' 
+    });
+  }
+};
+
 const requireAuth = (resolver) => {
   return (parent, args, context, info) => {
     if (!context.user) {
@@ -43,6 +67,7 @@ const requireRole = (role) => {
 
 module.exports = {
   authenticateToken,
+  authenticateTokenMiddleware,
   requireAuth,
   requireRole
 };

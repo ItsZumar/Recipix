@@ -8,6 +8,7 @@ export interface User {
   lastName?: string;
   bio?: string;
   avatar?: string;
+  profileVisibility: 'public' | 'private';
   createdAt?: string;
   updatedAt?: string;
   recipesCount?: number;
@@ -174,6 +175,10 @@ export interface FollowUserResponse {
 
 export interface UnfollowUserResponse {
   unfollowUser: boolean;
+}
+
+export interface UpdateProfileVisibilityResponse {
+  updateProfileVisibility: User;
 }
 
 export interface GetUserFollowersResponse {

@@ -1,5 +1,7 @@
 import { GraphQLError, ApiError } from '@/types/graphql';
 import { AppError } from '@/types/common';
+import { ImageUpload } from '@/types/common';
+import { useAuthStore } from '@/stores/authStore';
 
 // API Error handling utilities
 export class ApiErrorHandler {
@@ -277,3 +279,89 @@ export class RequestHandler {
     return this.handleResponse<T>(response);
   }
 }
+
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4001';
+
+/**
+ * Upload an image to the backend
+ */
+export const uploadImage = async (imageUri: string): Promise<string> => {
+  try {
+    const token = useAuthStore.getState().token;
+    
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    // Create form data
+    const formData = new FormData();
+    
+    // Get file info from URI
+    const filename = imageUri.split('/').pop() || 'image.jpg';
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : 'image/jpeg';
+    
+    formData.append('image', {
+      uri: imageUri,
+      type,
+      name: filename,
+    } as any);
+
+    // Upload to backend
+    const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Upload failed');
+    }
+
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Upload failed');
+    }
+
+    return result.data.url;
+  } catch (error) {
+    console.error('Image upload error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Check if an image URL is a local file URI
+ */
+export const isLocalImage = (imageUrl: string): boolean => {
+  return imageUrl.startsWith('file://') || imageUrl.startsWith('content://');
+};
+
+/**
+ * Get a valid image URL (handle local vs remote URLs)
+ */
+export const getValidImageUrl = (imageUrl: string): string | null => {
+  if (!imageUrl) return null;
+  
+  // If it's already a remote URL, return as is
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // If it's a local file URI, return null (can't display)
+  if (isLocalImage(imageUrl)) {
+    return null;
+  }
+  
+  // If it's a relative path, make it absolute
+  if (imageUrl.startsWith('/')) {
+    return `${API_BASE_URL}${imageUrl}`;
+  }
+  
+  return imageUrl;
+};

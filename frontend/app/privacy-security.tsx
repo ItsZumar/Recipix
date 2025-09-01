@@ -19,43 +19,24 @@ interface SettingItemProps {
   showChevron?: boolean;
 }
 
-const SettingItem: React.FC<SettingItemProps> = ({ 
-  icon, 
-  title, 
-  subtitle, 
-  onPress, 
-  rightElement, 
-  showChevron = true 
-}) => {
+const SettingItem: React.FC<SettingItemProps> = ({ icon, title, subtitle, onPress, rightElement, showChevron = true }) => {
   const { textColor, iconColor } = useScreenColors();
 
   return (
-    <TouchableOpacity 
-      style={styles.settingItem} 
-      onPress={onPress}
-      disabled={!onPress}
-    >
+    <TouchableOpacity style={styles.settingItem} onPress={onPress} disabled={!onPress}>
       <View style={styles.settingItemLeft}>
-        <View style={[styles.iconContainer, { backgroundColor: iconColor + '20' }]}>
+        <View style={[styles.iconContainer, { backgroundColor: iconColor + "20" }]}>
           <Ionicons name={icon} size={wp(5)} color={iconColor} />
         </View>
         <View style={styles.settingItemContent}>
-          <ThemedText style={[styles.settingTitle, { color: textColor }]}>
-            {title}
-          </ThemedText>
-          {subtitle && (
-            <ThemedText style={[styles.settingSubtitle, { color: textColor }]}>
-              {subtitle}
-            </ThemedText>
-          )}
+          <ThemedText style={[styles.settingTitle, { color: textColor }]}>{title}</ThemedText>
+          {subtitle && <ThemedText style={[styles.settingSubtitle, { color: textColor }]}>{subtitle}</ThemedText>}
         </View>
       </View>
-      
+
       <View style={styles.settingItemRight}>
         {rightElement}
-        {showChevron && onPress && (
-          <Ionicons name="chevron-forward" size={wp(4)} color={iconColor} />
-        )}
+        {showChevron && onPress && <Ionicons name="chevron-forward" size={wp(4)} color={iconColor} />}
       </View>
     </TouchableOpacity>
   );
@@ -67,43 +48,40 @@ export default function PrivacySecurityScreen() {
   const { visible, showModal, hideModal } = useActionModal();
 
   // Privacy & Security state
-  const [profileVisibility, setProfileVisibility] = useState('public');
-  const [recipeVisibility, setRecipeVisibility] = useState('public');
   const [allowFollowers, setAllowFollowers] = useState(true);
-  const [showEmail, setShowEmail] = useState(false);
-  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
-  const [biometricAuth, setBiometricAuth] = useState(false);
   const [dataSharing, setDataSharing] = useState(true);
   const [analytics, setAnalytics] = useState(true);
 
+  // Profile visibility modal state
+
   const handleChangePassword = () => {
-    Alert.alert(
-      'Change Password',
-      'Password change functionality will be implemented in a future update.',
-      [{ text: 'OK' }]
-    );
+    router.push("/change-password");
   };
 
   const handleDeleteData = () => {
     const actions: ModalAction[] = [
       {
-        id: 'delete',
-        title: 'Delete All Data',
-        icon: 'trash',
+        id: "delete",
+        title: "Delete All Data",
+        icon: "trash",
         onPress: () => {
           hideModal();
           Alert.alert(
-            'Delete All Data',
-            'This will permanently delete all your data including recipes, favorites, and account information. This action cannot be undone.',
+            "Delete All Data",
+            "This will permanently delete all your data including recipes, favorites, and account information. This action cannot be undone.",
             [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Delete', style: 'destructive', onPress: () => {
-                Alert.alert('Data Deleted', 'All your data has been deleted.');
-              }}
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Delete",
+                style: "destructive",
+                onPress: () => {
+                  Alert.alert("Data Deleted", "All your data has been deleted.");
+                },
+              },
             ]
           );
         },
-        style: 'destructive',
+        style: "destructive",
       },
     ];
 
@@ -111,121 +89,43 @@ export default function PrivacySecurityScreen() {
   };
 
   const handleExportData = () => {
-    Alert.alert(
-      'Export Data',
-      'Data export functionality will be implemented in a future update.',
-      [{ text: 'OK' }]
-    );
+    Alert.alert("Export Data", "Data export functionality will be implemented in a future update.", [{ text: "OK" }]);
   };
 
   const modalActions: ModalAction[] = [
     {
-      id: 'cancel',
-      title: 'Cancel',
+      id: "cancel",
+      title: "Cancel",
       onPress: hideModal,
-      style: 'default',
+      style: "default",
     },
   ];
 
   return (
     <ScreenWrapper>
-      <Header 
-        title="Privacy & Security" 
+      <Header
+        title="Privacy & Security"
         leftAccessory={{
-          icon: 'arrow-back',
-          onPress: () => router.back()
+          icon: "arrow-back",
+          onPress: () => router.back(),
         }}
       />
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Account Security Section */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
-            Account Security
-          </ThemedText>
-          
+          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Account Security</ThemedText>
+
           <ThemedView style={styles.sectionContent}>
-            <SettingItem
-              icon="key"
-              title="Change Password"
-              subtitle="Update your account password"
-              onPress={handleChangePassword}
-            />
-            
-            <SettingItem
-              icon="finger-print"
-              title="Biometric Authentication"
-              subtitle="Use Face ID or Touch ID to sign in"
-              rightElement={
-                <Switch
-                  value={biometricAuth}
-                  onValueChange={setBiometricAuth}
-                  trackColor={{ false: '#767577', true: tintColor }}
-                  thumbColor={biometricAuth ? '#fff' : '#f4f3f4'}
-                />
-              }
-              showChevron={false}
-            />
+            <SettingItem icon="key" title="Change Password" subtitle="Update your account password" onPress={handleChangePassword} />
           </ThemedView>
         </View>
 
         {/* Privacy Settings Section */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
-            Privacy Settings
-          </ThemedText>
-          
+          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Privacy Settings</ThemedText>
+
           <ThemedView style={styles.sectionContent}>
-            <SettingItem
-              icon="people"
-              title="Profile Visibility"
-              subtitle={profileVisibility === 'public' ? 'Public - Anyone can see your profile' : 'Private - Only followers can see your profile'}
-              onPress={() => {
-                Alert.alert(
-                  'Profile Visibility',
-                  'Choose who can see your profile',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { 
-                      text: 'Public', 
-                      onPress: () => setProfileVisibility('public'),
-                      style: profileVisibility === 'public' ? 'default' : 'cancel'
-                    },
-                    { 
-                      text: 'Private', 
-                      onPress: () => setProfileVisibility('private'),
-                      style: profileVisibility === 'private' ? 'default' : 'cancel'
-                    }
-                  ]
-                );
-              }}
-            />
-            
-            <SettingItem
-              icon="restaurant"
-              title="Recipe Visibility"
-              subtitle={recipeVisibility === 'public' ? 'Public - Anyone can see your recipes' : 'Private - Only you can see your recipes'}
-              onPress={() => {
-                Alert.alert(
-                  'Recipe Visibility',
-                  'Choose who can see your recipes',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { 
-                      text: 'Public', 
-                      onPress: () => setRecipeVisibility('public'),
-                      style: recipeVisibility === 'public' ? 'default' : 'cancel'
-                    },
-                    { 
-                      text: 'Private', 
-                      onPress: () => setRecipeVisibility('private'),
-                      style: recipeVisibility === 'private' ? 'default' : 'cancel'
-                    }
-                  ]
-                );
-              }}
-            />
-            
             <SettingItem
               icon="person-add"
               title="Allow Followers"
@@ -234,23 +134,19 @@ export default function PrivacySecurityScreen() {
                 <Switch
                   value={allowFollowers}
                   onValueChange={setAllowFollowers}
-                  trackColor={{ false: '#767577', true: tintColor }}
-                  thumbColor={allowFollowers ? '#fff' : '#f4f3f4'}
+                  trackColor={{ false: "#767577", true: tintColor }}
+                  thumbColor={allowFollowers ? "#fff" : "#f4f3f4"}
                 />
               }
               showChevron={false}
             />
-            
-            
           </ThemedView>
         </View>
 
         {/* Data & Analytics Section */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>
-            Data & Analytics
-          </ThemedText>
-          
+          <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Data & Analytics</ThemedText>
+
           <ThemedView style={styles.sectionContent}>
             <SettingItem
               icon="analytics"
@@ -260,13 +156,13 @@ export default function PrivacySecurityScreen() {
                 <Switch
                   value={analytics}
                   onValueChange={setAnalytics}
-                  trackColor={{ false: '#767577', true: tintColor }}
-                  thumbColor={analytics ? '#fff' : '#f4f3f4'}
+                  trackColor={{ false: "#767577", true: tintColor }}
+                  thumbColor={analytics ? "#fff" : "#f4f3f4"}
                 />
               }
               showChevron={false}
             />
-            
+
             <SettingItem
               icon="share"
               title="Data Sharing"
@@ -275,35 +171,23 @@ export default function PrivacySecurityScreen() {
                 <Switch
                   value={dataSharing}
                   onValueChange={setDataSharing}
-                  trackColor={{ false: '#767577', true: tintColor }}
-                  thumbColor={dataSharing ? '#fff' : '#f4f3f4'}
+                  trackColor={{ false: "#767577", true: tintColor }}
+                  thumbColor={dataSharing ? "#fff" : "#f4f3f4"}
                 />
               }
               showChevron={false}
             />
-            
-            <SettingItem
-              icon="download"
-              title="Export Data"
-              subtitle="Download a copy of your data"
-              onPress={handleExportData}
-            />
+
+            <SettingItem icon="download" title="Export Data" subtitle="Download a copy of your data" onPress={handleExportData} />
           </ThemedView>
         </View>
 
         {/* Danger Zone */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: '#FF3B30' }]}>
-            Danger Zone
-          </ThemedText>
-          
+          <ThemedText style={[styles.sectionTitle, { color: "#FF3B30" }]}>Danger Zone</ThemedText>
+
           <ThemedView style={styles.sectionContent}>
-            <SettingItem
-              icon="trash"
-              title="Delete All Data"
-              subtitle="Permanently delete all your data"
-              onPress={handleDeleteData}
-            />
+            <SettingItem icon="trash" title="Delete All Data" subtitle="Permanently delete all your data" onPress={handleDeleteData} />
           </ThemedView>
         </View>
       </ScrollView>

@@ -88,3 +88,15 @@ export const passwordChangeSchema = Yup.object().shape({
     .oneOf([Yup.ref('newPassword')], 'Passwords must match')
     .required('Please confirm your new password'),
 });
+
+// Change password validation schema (simplified version)
+export const changePasswordSchema = Yup.object().shape({
+  currentPassword: Yup.string()
+    .required('Current password is required'),
+  newPassword: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('New password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('newPassword')], 'Passwords must match')
+    .required('Please confirm your new password'),
+});

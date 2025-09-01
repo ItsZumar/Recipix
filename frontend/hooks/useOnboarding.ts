@@ -25,6 +25,8 @@ export const useOnboarding = () => {
     try {
       await AsyncStorage.setItem('onboardingCompleted', 'true');
       setIsOnboardingCompleted(true);
+      // Add a small delay to ensure AsyncStorage is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
       // Force a re-check to ensure the state is properly updated
       await checkOnboardingStatus();
       return true;

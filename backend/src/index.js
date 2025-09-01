@@ -10,6 +10,7 @@ const { sequelize } = require('./database/connection');
 const typeDefs = require('./schemas');
 const resolvers = require('./resolvers');
 const { authenticateToken } = require('./middleware/auth');
+const uploadRoutes = require('./routes/upload');
 
 // Import models to establish relationships
 require('./models');
@@ -37,6 +38,12 @@ app.use(limiter);
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static('uploads'));
+
+// Upload routes
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -10,6 +10,7 @@ import { useRecipe, useDeleteRecipe } from "@/hooks/useRecipes";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useUser } from "@/stores/authStore";
 import { wp, hp } from "@/utils/responsive";
+import { getValidImageUrl } from "@/utils/api";
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -120,13 +121,16 @@ export default function RecipeDetailScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Recipe Image */}
         <View style={styles.imageContainer}>
-          {recipe.image ? (
-            <Image source={{ uri: recipe.image }} style={styles.image} />
-          ) : (
-            <View style={[styles.placeholderImage, { backgroundColor: backgroundColor === "#fff" ? "#f0f0f0" : "#404040" }]}>
-              <Ionicons name="restaurant" size={wp(16)} color={iconColor} />
-            </View>
-          )}
+          {(() => {
+            const validImageUrl = getValidImageUrl(recipe.image || '');
+            return validImageUrl ? (
+              <Image source={{ uri: validImageUrl }} style={styles.image} />
+            ) : (
+              <View style={[styles.placeholderImage, { backgroundColor: backgroundColor === "#fff" ? "#f0f0f0" : "#404040" }]}>
+                <Ionicons name="restaurant" size={wp(16)} color={iconColor} />
+              </View>
+            );
+          })()}
         </View>
 
         {/* Recipe Info */}

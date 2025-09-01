@@ -7,8 +7,8 @@ const seedData = async () => {
     console.log('🌱 Starting database seeding...');
 
     // Create sample users
-    const users = await User.bulkCreate([
-      {
+    const users = await Promise.all([
+      User.create({
         username: 'chef_john',
         email: 'john@recipix.com',
         password: 'password123',
@@ -17,8 +17,8 @@ const seedData = async () => {
         bio: 'Professional chef with 15 years of experience',
         isVerified: true,
         role: 'admin'
-      },
-      {
+      }),
+      User.create({
         username: 'foodie_mary',
         email: 'mary@recipix.com',
         password: 'password123',
@@ -26,8 +26,8 @@ const seedData = async () => {
         lastName: 'Johnson',
         bio: 'Home cook and food blogger',
         isVerified: true
-      },
-      {
+      }),
+      User.create({
         username: 'baking_bob',
         email: 'bob@recipix.com',
         password: 'password123',
@@ -35,7 +35,7 @@ const seedData = async () => {
         lastName: 'Wilson',
         bio: 'Passionate baker and pastry chef',
         isVerified: true
-      }
+      })
     ]);
 
     console.log(`✅ Created ${users.length} users`);
@@ -72,7 +72,8 @@ const seedData = async () => {
         ratingCount: 25,
         viewCount: 150,
         favoriteCount: 30,
-        authorId: users[0].id
+        authorId: users[0].id,
+        image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop'
       },
       {
         title: 'Chocolate Chip Cookies',
@@ -106,7 +107,8 @@ const seedData = async () => {
         ratingCount: 45,
         viewCount: 300,
         favoriteCount: 75,
-        authorId: users[2].id
+        authorId: users[2].id,
+        image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&h=600&fit=crop'
       },
       {
         title: 'Chicken Tikka Masala',
@@ -141,7 +143,8 @@ const seedData = async () => {
         ratingCount: 35,
         viewCount: 200,
         favoriteCount: 50,
-        authorId: users[1].id
+        authorId: users[1].id,
+        image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&h=600&fit=crop'
       }
     ]);
 
